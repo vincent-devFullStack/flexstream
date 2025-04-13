@@ -1,0 +1,24 @@
+.vignette {
+  display: flex 2 1 auto;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin: 10px;
+
+  width: max-content;
+  width: min-content;
+}
+
+.affiches {
+  border-radius: 15px 15px 0 0;
+
+  height: 300px;
+}
+
+.title {
+  font-weight: bold;
+  padding-top: 8px;
+}
+
+.note {
+  font-size: 11.5px;
+}

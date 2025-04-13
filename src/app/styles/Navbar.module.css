@@ -1,0 +1,165 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(
+    170deg,
+    #ff0000b5,
+    #de5f0a99,
+    #1a1a1a3f,
+    #3ab1ab69,
+    #0151ff69
+  );
+  color: white;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff41;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  flex: 1;
+  max-width: 300px;
+  min-width: 100px;
+}
+
+.searchBar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  width: 100%;
+  font-size: 14px;
+}
+
+.searchBar input::placeholder {
+  color: #f1f1f1;
+  font-size: 15px;
+  opacity: 1;
+}
+
+.searchBar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navLinks {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  min-width: 180px;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.signIn {
+  background-color: #ebaf00;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 12px;
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+
+.desktopOnly {
+  display: block;
+}
+
+.mobileSignIn {
+  background-color: #ebaf00;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 12px;
+  color: black;
+  text-decoration: none;
+}
+
+.burger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.rightZone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileOnly {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .searchBar {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  .burger {
+    display: block;
+  }
+
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    background-color: #1a1a1ab0;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    text-align: center;
+    gap: 16px;
+    z-index: 999;
+  }
+
+  .navLinks.showMenu {
+    display: flex;
+  }
+
+  .desktopOnly {
+    display: none;
+  }
+
+  .rightZone {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .userActions {
+    display: none;
+  }
+
+  .mobileOnly {
+    display: block;
+  }
+}
