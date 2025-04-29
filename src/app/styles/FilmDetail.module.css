@@ -1,0 +1,48 @@
+/* FilmDetail.module.css */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+  color: white;
+  background: linear-gradient(to bottom, #000000, #1a1a1a);
+  min-height: 100vh;
+}
+
+.poster {
+  max-width: 300px;
+  border-radius: 12px;
+  margin: 1rem;
+}
+
+.details {
+  max-width: 600px;
+  margin: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  margin: 0.3rem 0;
+  color: #fbc531;
+}
+
+.overview {
+  margin-top: 1rem;
+  line-height: 1.5;
+  color: #ddd;
+}
+
+.backlink {
+  margin-top: 2rem;
+  display: inline-block;
+  color: #00aaff;
+  text-decoration: underline;
+  cursor: pointer;
+}

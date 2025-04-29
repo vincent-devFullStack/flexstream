@@ -1,17 +1,21 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    console.log("Recherche :", search);
+    if (search.trim()) {
+      router.push(`/recherche?query=${encodeURIComponent(search.trim())}`);
+    }
   };
 
   return (

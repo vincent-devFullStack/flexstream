@@ -2,32 +2,10 @@ import styles from "./page.module.css";
 import Movie from "./components/Movie";
 import Navbar from "./components/Navbar";
 import Carousel from "./components/Carousel";
+import { getPopularMovies } from "../lib/tmdb";
 
-export default function Home() {
-  const mockMovies = [
-    { id: 1, title: "Inception", description: "Un voleur infiltre les rêves." },
-    {
-      id: 2,
-      title: "Interstellar",
-      description: "Un voyage à travers l'espace-temps.",
-    },
-    {
-      id: 3,
-      title: "The Dark Knight",
-      description: "Batman affronte le Joker.",
-    },
-    {
-      id: 4,
-      title: "Tenet",
-      description: "Une mission inversée dans le temps.",
-    },
-    {
-      id: 5,
-      title: "Dunkirk",
-      description:
-        "L’évacuation des troupes alliées pendant la Seconde Guerre mondiale.",
-    },
-  ];
+export default async function Home() {
+  const movies = await getPopularMovies();
 
   const heroImages = [
     "/banner1.jpg",
@@ -36,7 +14,6 @@ export default function Home() {
     "/banner4.jpg",
   ];
 
-  // Carousel avec images plein écran
   const carouselItems = heroImages.map((src, index) => (
     <img
       key={index}
@@ -46,12 +23,14 @@ export default function Home() {
     />
   ));
 
-  // Affichage des films
-  const movieGrid = mockMovies.map((movie) => (
+  const movieGrid = movies.map((movie) => (
     <Movie
       key={`grid-${movie.id}`}
+      id={movie.id}
       title={movie.title}
-      description={movie.description}
+      description={movie.overview}
+      image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+      rating={movie.vote_average}
     />
   ));
 
@@ -68,13 +47,6 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.grid}>{movieGrid}</div>
-
-        <div className={styles.content}>
-          <p>Movie 1</p>
-          <p>Movie 2</p>
-          <p>Movie 3</p>
-          <p>Movie 4</p>
-        </div>
       </main>
 
       <footer className={styles.footer}>
