@@ -5,11 +5,11 @@
   padding: 12px 20px;
   background: linear-gradient(
     170deg,
-    #ff0000b5,
-    #de5f0a99,
-    #1a1a1a3f,
-    #3ab1ab69,
-    #0151ff69
+    rgba(255, 0, 0, 0.8),
+    rgba(222, 95, 10, 0.7),
+    rgba(26, 26, 26, 0.5),
+    rgba(58, 177, 171, 0.7),
+    rgba(1, 81, 255, 0.7)
   );
   color: white;
   position: fixed;

@@ -29,16 +29,24 @@ export default function Home() {
     },
   ];
 
-  // Pour le carousel (tu peux aussi afficher juste 3 ou 4)
-  const carouselItems = mockMovies.map((movie) => (
-    <Movie
-      key={`carousel-${movie.id}`}
-      title={movie.title}
-      description={movie.description}
+  const heroImages = [
+    "/banner1.jpg",
+    "/banner2.jpg",
+    "/banner3.jpg",
+    "/banner4.jpg",
+  ];
+
+  // Carousel avec images plein écran
+  const carouselItems = heroImages.map((src, index) => (
+    <img
+      key={index}
+      src={src}
+      alt={`Slide ${index + 1}`}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
     />
   ));
 
-  // Pour la grille principale
+  // Affichage des films
   const movieGrid = mockMovies.map((movie) => (
     <Movie
       key={`grid-${movie.id}`}
@@ -51,10 +59,13 @@ export default function Home() {
     <>
       <Navbar />
       <header className={styles.header}>
-        <Carousel items={carouselItems} autoPlay={true} delay={2000} />
-        <h1>Faux Plex</h1>
-        <p>Votre plateforme de streaming préférée</p>
+        <Carousel items={carouselItems} autoPlay={true} delay={4000} />
+        <div className={styles.headerContent}>
+          <h1>Faux Plex</h1>
+          <p>Votre plateforme de streaming préférée</p>
+        </div>
       </header>
+
       <main className={styles.main}>
         <div className={styles.grid}>{movieGrid}</div>
 
@@ -65,6 +76,7 @@ export default function Home() {
           <p>Movie 4</p>
         </div>
       </main>
+
       <footer className={styles.footer}>
         <p>© 2025 Faux Plex by Vincent Silvestri. All rights reserved.</p>
       </footer>

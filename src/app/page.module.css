@@ -16,11 +16,23 @@
 }
 
 .header {
-  padding-top: 80px;
-  text-align: center;
-  height: 50vh;
-  background-color: black;
+  position: relative;
+  height: 500px;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.headerContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
   color: white;
+  text-align: center;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
 }
 
 .footer {
