@@ -40,8 +40,12 @@ export default async function Home() {
       <header className={styles.header}>
         <Carousel items={carouselItems} autoPlay={true} delay={4000} />
         <div className={styles.headerContent}>
-          <h1>Faux Plex</h1>
-          <p>Votre plateforme de streaming préférée</p>
+          <h1 className={styles.headerTitle}>Faux Plex</h1>
+          <p className={styles.headerDescription}>
+            À la recherche de quelque chose à regarder ? Laissez-nous faire.
+            Plex associe des séries et des films gratuits aux meilleurs services
+            de streaming gratuits, pour toujours plus de contenu à découvrir.
+          </p>
         </div>
       </header>
 
