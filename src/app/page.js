@@ -40,11 +40,12 @@ export default async function Home() {
       <header className={styles.header}>
         <Carousel items={carouselItems} autoPlay={true} delay={4000} />
         <div className={styles.headerContent}>
-          <h1 className={styles.headerTitle}>Faux Plex</h1>
+          <h1 className={styles.headerTitle}>FlexStream</h1>
           <p className={styles.headerDescription}>
-            À la recherche de quelque chose à regarder ? Laissez-nous faire.
-            Plex associe des séries et des films gratuits aux meilleurs services
-            de streaming gratuits, pour toujours plus de contenu à découvrir.
+            À la recherche de quelque chose à regarder ? FlexStream vous propose
+            des films et séries disponibles gratuitement, sans engagement.
+            Profitez d’une expérience simple et rapide pour découvrir du
+            contenu.
           </p>
         </div>
       </header>
@@ -54,7 +55,7 @@ export default async function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2025 Faux Plex by Vincent Silvestri. All rights reserved.</p>
+        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
       </footer>
     </>
   );

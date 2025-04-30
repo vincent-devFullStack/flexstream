@@ -21,7 +21,12 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.logo}>
-        <img src="/plex_logo.svg" alt="Logo Plex" width={100} height={30} />
+        <img
+          src="/flexstream.svg"
+          alt="Logo flexstream"
+          width={120}
+          height={30}
+        />
       </Link>
 
       <form onSubmit={handleSearchSubmit} className={styles.searchBar}>
