@@ -1,4 +1,7 @@
 .vignette {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   opacity: 0;
   transform: translateY(20px);
   transition: transform 0.3s ease, opacity 0.6s ease-out;
@@ -13,6 +16,14 @@
   width: 250px;
   flex-shrink: 0;
   text-align: center;
+  overflow: hidden;
+}
+
+.vignette p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal; /* permet le retour à la ligne */
+  margin-top: 0.5rem;
 }
 
 .vignette.visible {

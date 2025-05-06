@@ -45,7 +45,7 @@ export default function Navbar() {
         <Link href="/" onClick={() => setMenuOpen(false)}>
           Accueil
         </Link>
-        <Link href="/films" onClick={() => setMenuOpen(false)}>
+        <Link href="/film" onClick={() => setMenuOpen(false)}>
           Films
         </Link>
         <Link href="/series" onClick={() => setMenuOpen(false)}>
