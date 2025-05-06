@@ -8,10 +8,12 @@ export default function Movie({ id, title, description, image, rating }) {
   const [isVisible, setIsVisible] = useState(false);
 
   const maxLength = 100;
+  const cleanDescription = description || "Pas de description disponible";
+
   const shortDescription =
-    description.length > maxLength
-      ? description.slice(0, maxLength) + "…"
-      : description;
+    cleanDescription.length > maxLength
+      ? cleanDescription.slice(0, maxLength) + "…"
+      : cleanDescription;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

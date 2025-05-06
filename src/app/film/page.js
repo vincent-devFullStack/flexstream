@@ -1,60 +1,34 @@
-"use client";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
 import Movie from "../components/Movie";
+import { getPopularMovies } from "../../lib/tmdb";
 
-const favoriteMovies = [
-  {
-    genre: "Action",
-    movies: [
-      {
-        id: "die-hard",
-        title: "Die Hard",
-        description:
-          "John McClane affronte des terroristes dans un gratte-ciel.",
-        image: "/banner1.jpg",
-        rating: 8.2,
-      },
-      {
-        id: "mad-max",
-        title: "Mad Max",
-        description:
-          "Dans un futur apocalyptique, Max parcourt les routes désertiques.",
-        image: "/banner2.jpg",
-        rating: 7.9,
-      },
-    ],
-  },
-  {
-    genre: "Comédie",
-    movies: [
-      {
-        id: "superbad",
-        title: "Superbad",
-        description:
-          "Deux amis inséparables tentent de profiter de leur dernier été.",
-        image: "/banner3.jpg",
-        rating: 7.6,
-      },
-      {
-        id: "the-mask",
-        title: "The Mask",
-        description:
-          "Un homme timide découvre un masque qui change sa personnalité.",
-        image: "/banner4.jpg",
-        rating: 6.9,
-      },
-    ],
-  },
-];
+export default async function FilmPage() {
+  const popular = await getPopularMovies();
 
-export default function FilmPage() {
-  function scrollRow(genre, scrollAmount) {
-    const row = document.getElementById(`row-${genre}`);
-    if (row) {
-      row.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  }
+  // Regrouper les films par genre
+  const genreMap = {};
+
+  popular.forEach((movie) => {
+    movie.genre_ids.forEach((genreId) => {
+      const genreName = getGenreNameById(genreId);
+      if (!genreMap[genreName]) {
+        genreMap[genreName] = [];
+      }
+      genreMap[genreName].push(movie);
+    });
+  });
+
+  const categories = Object.keys(genreMap).map((genre) => ({
+    genre,
+    movies: genreMap[genre].map((m) => ({
+      id: m.id,
+      title: m.title,
+      description: m.overview,
+      image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+      rating: m.vote_average,
+    })),
+  }));
 
   return (
     <>
@@ -68,16 +42,10 @@ export default function FilmPage() {
         </div>
       </header>
       <main className={`${styles.main} backgrounds`}>
-        {favoriteMovies.map((category) => (
+        {categories.map((category) => (
           <section key={category.genre}>
             <h2 className={styles.sectionTitle}>{category.genre}</h2>
             <div className={styles.movieRowWrapper}>
-              <button
-                className={styles.scrollButton}
-                onClick={() => scrollRow(category.genre, -300)}
-              >
-                ◀
-              </button>
               <div className={styles.movieRow} id={`row-${category.genre}`}>
                 {category.movies.map((movie) => (
                   <Movie
@@ -90,16 +58,36 @@ export default function FilmPage() {
                   />
                 ))}
               </div>
-              <button
-                className={styles.scrollButton}
-                onClick={() => scrollRow(category.genre, 300)}
-              >
-                ▶
-              </button>
             </div>
           </section>
         ))}
       </main>
     </>
   );
+}
+
+// Fonction pour traduire les IDs TMDB en noms de genres
+function getGenreNameById(id) {
+  const genreMap = {
+    28: "Action",
+    12: "Aventure",
+    16: "Animation",
+    35: "Comédie",
+    80: "Crime",
+    99: "Documentaire",
+    18: "Drame",
+    10751: "Famille",
+    14: "Fantasy",
+    36: "Histoire",
+    27: "Horreur",
+    10402: "Musique",
+    9648: "Mystère",
+    10749: "Romance",
+    878: "Science-fiction",
+    10770: "Téléfilm",
+    53: "Thriller",
+    10752: "Guerre",
+    37: "Western",
+  };
+  return genreMap[id] || "Autre";
 }
