@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
 import Movie from "../components/Movie";
-import { getPopularSeries, getTopRatedSeries } from "../../lib/tmdb";
 
 export default function SeriesPage() {
   const [categories, setCategories] = useState([]);
@@ -11,8 +10,8 @@ export default function SeriesPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const popular = await getPopularSeries();
-        const topRated = await getTopRatedSeries();
+        const res = await fetch("/api/series");
+        const { popular, topRated } = await res.json();
 
         const seriesGenres = {
           35: "Comédie",
@@ -40,7 +39,7 @@ export default function SeriesPage() {
               genreMap[genreName].push({
                 id: serie.id,
                 title: serie.name,
-                description: serie.overview,
+                description: serie.overview || "Pas de description disponible",
                 image: serie.poster_path
                   ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
                   : "/placeholder.jpg",
