@@ -1,4 +1,3 @@
-/* FilmDetail.module.css */
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -8,41 +7,169 @@
   color: white;
   background: linear-gradient(to bottom, #000000, #1a1a1a);
   min-height: 100vh;
+  animation: fadeIn 0.2s ease-in;
 }
 
 .poster {
-  max-width: 300px;
+  width: 240px;
+  height: 360px;
+  object-fit: cover;
   border-radius: 12px;
   margin: 1rem;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 .details {
   max-width: 600px;
   margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
+  line-height: 1.2;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin: 0.3rem 0;
+  font-weight: 500;
   color: #fbc531;
 }
 
 .overview {
   margin-top: 1rem;
   line-height: 1.5;
-  color: #ddd;
+  color: #ccc;
 }
 
-.backlink {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 2rem;
+}
+
+.backlink,
+.backButton {
   display: inline-block;
   color: #00aaff;
-  text-decoration: underline;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s ease;
+  margin-top: 1rem;
+}
+
+.backlink:hover,
+.backButton:hover {
+  color: #0088cc;
+}
+
+.addButton {
+  background-color: #ebaf00;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 9999px;
+  font-weight: bold;
+  color: black;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.addButton:hover {
+  background-color: #ffc940;
+}
+
+.rating {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rateLabel {
+  font-weight: bold;
+}
+
+.star {
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: gray; /* couleur par défaut */
+  transition: color 0.2s;
+  padding: 0 4px;
+}
+
+.filled {
+  color: gold;
+}
+
+.star:hover,
+.star:focus,
+.star:hover,
+.star:focus {
+  transform: scale(1.2);
+}
+
+.trailer {
+  margin-top: 2rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.057);
+  background: #111;
+  animation: fadeIn 0.5s ease-in-out;
+}
+.trailer h3 {
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .poster {
+    width: 180px;
+    height: 270px;
+  }
+
+  .details {
+    margin: 1rem 0;
+    max-width: 90%;
+  }
+
+  .rating {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .trailer iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
 }

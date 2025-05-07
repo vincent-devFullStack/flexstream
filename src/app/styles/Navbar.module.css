@@ -27,6 +27,7 @@
 }
 
 .searchBar {
+  position: relative;
   display: flex;
   align-items: center;
   background-color: #ffffff41;
@@ -58,6 +59,49 @@
   cursor: pointer;
 }
 
+/* Suggestions autocomplete */
+.suggestions {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 0;
+  background: rgba(26, 26, 26, 0.95);
+  border-radius: 8px;
+  z-index: 1001;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 8px;
+  list-style: none;
+  margin-top: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.suggestions li {
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestions li:hover {
+  background-color: rgba(235, 175, 0, 0.7);
+  border-radius: 4px;
+}
+
+.suggestions a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.suggestionImage {
+  width: 60px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+}
+
+/* Navigation links */
 .navLinks {
   display: flex;
   gap: 20px;
@@ -83,17 +127,7 @@
   padding-bottom: 4px;
 }
 
-.signIn {
-  background-color: #ebaf00;
-  padding: 8px 12px;
-  border-radius: 9999px;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 12px;
-  color: rgb(255, 255, 255);
-  text-decoration: none;
-}
-
+/* Boutons de connexion */
 .signIn,
 .mobileSignIn {
   background-color: #ebaf00;
@@ -102,7 +136,7 @@
   font-weight: bold;
   text-align: center;
   margin-top: 12px;
-  color: rgb(255, 255, 255);
+  color: white;
   text-decoration: none;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -113,19 +147,13 @@
   transform: translateY(-3px);
 }
 
+/* Affichage conditionnel */
 .desktopOnly {
   display: block;
 }
 
-.mobileSignIn {
-  background-color: #ebaf00;
-  padding: 8px 12px;
-  border-radius: 9999px;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 12px;
-  color: black;
-  text-decoration: none;
+.mobileOnly {
+  display: none;
 }
 
 .burger {
@@ -144,10 +172,7 @@
   gap: 12px;
 }
 
-.mobileOnly {
-  display: none;
-}
-
+/* Responsive */
 @media (max-width: 600px) {
   .searchBar {
     margin: 10px 20px;

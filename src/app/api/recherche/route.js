@@ -13,8 +13,9 @@ export async function GET(request) {
       "/search/movie",
       `&query=${encodeURIComponent(query)}&language=fr-FR`
     );
-    return Response.json(data);
+    return Response.json({ results: data.results });
   } catch (error) {
+    console.error("Erreur /api/recherche :", error);
     return Response.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
