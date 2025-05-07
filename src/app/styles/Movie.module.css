@@ -19,11 +19,19 @@
   overflow: hidden;
 }
 
+.vignette h2 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 .vignette p {
   word-wrap: break-word;
   overflow-wrap: break-word;
-  white-space: normal; /* permet le retour à la ligne */
-  margin-top: 0.5rem;
+  white-space: normal;
+  margin-top: 0.2rem;
 }
 
 .vignette.visible {

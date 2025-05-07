@@ -53,3 +53,7 @@ export async function getTopRatedSeries() {
   const data = await fetchFromTMDB("/tv/top_rated", "&language=fr-FR&page=1");
   return data.results;
 }
+
+export async function getSerieDetails(id) {
+  return fetchFromTMDB(`/tv/${id}`, "&language=fr-FR");
+}

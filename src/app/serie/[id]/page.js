@@ -1,15 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import styles from "../../styles/FilmDetail.module.css";
 
-export default function FilmDetail() {
+export default function SerieDetail() {
   const params = useParams();
-  const pathname = usePathname(); // pour détecter si on est sur /film ou /series
-  const isSerie = pathname.includes("/series");
-  const type = isSerie ? "series" : "films";
-
-  const [movie, setMovie] = useState(null);
+  const [serie, setSerie] = useState(null);
   const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
@@ -17,65 +13,58 @@ export default function FilmDetail() {
   useEffect(() => {
     if (!params?.id) return;
 
-    async function fetchMedia() {
+    async function fetchSerie() {
       try {
-        // Infos de la série ou du film
-        const res = await fetch(`/api/${type}/${params.id}`);
+        const res = await fetch(`/api/series/${params.id}`);
         const data = await res.json();
-        setMovie(data);
+        setSerie(data);
 
-        // Bande-annonce
-        const videoRes = await fetch(`/api/${type}/${params.id}/videos`);
+        const videoRes = await fetch(`/api/series/${params.id}/videos`);
         const videoData = await videoRes.json();
         const trailer = videoData.results?.find(
           (v) => v.site === "YouTube" && v.type === "Trailer"
         );
         if (trailer) setTrailerKey(trailer.key);
 
-        // Note utilisateur
-        const savedRating = localStorage.getItem(`rating-${params.id}`);
+        const savedRating = localStorage.getItem(`rating-serie-${params.id}`);
         if (savedRating) setRating(parseInt(savedRating));
       } catch (error) {
-        console.error(`Erreur lors du chargement de la ${type} :`, error);
+        console.error("Erreur chargement série :", error);
       }
     }
 
-    fetchMedia();
-  }, [params?.id, type]);
+    fetchSerie();
+  }, [params?.id]);
 
   const handleRate = (value) => {
     setRating(value);
-    localStorage.setItem(`rating-${params.id}`, value);
+    localStorage.setItem(`rating-serie-${params.id}`, value);
   };
 
-  if (!movie) return <p className={styles.loading}>Chargement...</p>;
+  if (!serie) return <p className={styles.loading}>Chargement...</p>;
 
   return (
     <div className={styles.container}>
       <img
         src={
-          movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          serie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
             : "/placeholder.jpg"
         }
-        alt={movie.title || movie.name}
+        alt={serie.name}
         className={styles.poster}
       />
-
       <div className={styles.details}>
-        <h1 className={styles.title}>{movie.title || movie.name}</h1>
+        <h1 className={styles.title}>{serie.name}</h1>
         <p className={styles.subtitle}>
-          Sortie :{" "}
-          {new Date(
-            movie.release_date || movie.first_air_date
-          ).toLocaleDateString("fr-FR")}
+          Première diffusion :{" "}
+          {new Date(serie.first_air_date).toLocaleDateString("fr-FR")}
         </p>
         <p className={styles.subtitle}>
-          ⭐ {movie.vote_average.toFixed(1)} —{" "}
-          {movie.genres.map((g) => g.name).join(", ")}
+          ⭐ {serie.vote_average.toFixed(1)} —{" "}
+          {serie.genres.map((g) => g.name).join(", ")}
         </p>
-
-        <p className={styles.overview}>{movie.overview}</p>
+        <p className={styles.overview}>{serie.overview}</p>
 
         {trailerKey && (
           <div className={styles.trailer}>

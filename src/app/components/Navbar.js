@@ -117,7 +117,7 @@ export default function Navbar() {
           Films
         </Link>
         <Link
-          href="/series"
+          href="/serie"
           className={getActiveClass("/series")}
           onClick={() => setMenuOpen(false)}
         >

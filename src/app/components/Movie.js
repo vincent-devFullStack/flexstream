@@ -3,18 +3,35 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import styles from "../styles/Movie.module.css";
 
-export default function Movie({ id, title, description, image, rating }) {
+export default function Movie({
+  id,
+  title,
+  description,
+  image,
+  rating,
+  type = "film", // Par défaut : film
+}) {
+  console.log("🎯 Movie rendu client :", {
+    id,
+    title,
+    description,
+    image,
+    rating,
+    type,
+  });
+  console.log("🔍 Movie rendu :", { id, title, type });
   const ref = useRef();
   const [isVisible, setIsVisible] = useState(false);
 
+  // Description propre + raccourcie
   const maxLength = 100;
   const cleanDescription = description || "Pas de description disponible";
-
   const shortDescription =
     cleanDescription.length > maxLength
       ? cleanDescription.slice(0, maxLength) + "…"
       : cleanDescription;
 
+  // Animation apparition
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
@@ -26,8 +43,8 @@ export default function Movie({ id, title, description, image, rating }) {
   }, []);
 
   return (
-    <Link href={`/film/${id}`} className={styles.cardLink}>
-      <div className={`${styles.vignetteWrapper}`}>
+    <Link href={`/${type}/${id}`} className={styles.cardLink}>
+      <div className={styles.vignetteWrapper}>
         <div
           ref={ref}
           className={`${styles.vignette} ${isVisible ? styles.visible : ""}`}
@@ -37,6 +54,7 @@ export default function Movie({ id, title, description, image, rating }) {
           {typeof rating === "number" && (
             <p className={styles.rating}>⭐ {rating.toFixed(1)}</p>
           )}
+
           <p>{shortDescription}</p>
         </div>
       </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
 import Movie from "../components/Movie";
@@ -29,46 +29,47 @@ export default function SeriesPage() {
 
         const genreMap = {};
 
-        popular.concat(topRated).forEach((serie) => {
+        [...popular, ...topRated].forEach((serie) => {
           serie.genre_ids.forEach((genreId) => {
             const genreName = seriesGenres[genreId];
-            if (genreName) {
-              if (!genreMap[genreName]) {
-                genreMap[genreName] = [];
-              }
-              genreMap[genreName].push({
-                id: serie.id,
-                title: serie.name,
-                description: serie.overview || "Pas de description disponible",
-                image: serie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
-                  : "/placeholder.jpg",
-                rating: serie.vote_average,
-              });
-            }
+            if (!genreName) return;
+
+            if (!genreMap[genreName]) genreMap[genreName] = [];
+
+            genreMap[genreName].push({
+              id: serie.id,
+              title: serie.name,
+              description: serie.overview || "Pas de description disponible",
+              image: serie.poster_path
+                ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
+                : "/placeholder.jpg",
+              rating: serie.vote_average,
+            });
           });
         });
 
-        const categoriesArray = Object.keys(genreMap).map((genre) => ({
+        const result = Object.entries(genreMap).map(([genre, movies]) => ({
           genre,
-          movies: genreMap[genre],
+          movies,
         }));
 
-        setCategories(categoriesArray);
+        console.log("✅ Séries catégorisées :", result); // 🔍 Ajouté
+
+        setCategories(result);
       } catch (error) {
-        console.error("Erreur chargement séries:", error);
+        console.error("Erreur chargement séries :", error);
       }
     }
 
     fetchData();
   }, []);
 
-  function scrollRow(genre, scrollAmount) {
+  const scrollRow = useCallback((genre, scrollAmount) => {
     const row = document.getElementById(`row-${genre}`);
     if (row) {
       row.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
-  }
+  }, []);
 
   return (
     <>
@@ -81,37 +82,41 @@ export default function SeriesPage() {
           </p>
         </div>
       </header>
+
       <main className={`${styles.main} backgrounds`}>
         {categories.length === 0 ? (
           <p style={{ textAlign: "center", color: "white" }}>
             Aucune série trouvée 😥
           </p>
         ) : (
-          categories.map((category) => (
-            <section key={category.genre}>
-              <h2 className={styles.sectionTitle}>{category.genre}</h2>
+          categories.map(({ genre, movies }) => (
+            <section key={genre}>
+              <h2 className={styles.sectionTitle}>{genre}</h2>
               <div className={styles.movieRowWrapper}>
                 <button
                   className={styles.scrollButton}
-                  onClick={() => scrollRow(category.genre, -300)}
+                  onClick={() => scrollRow(genre, -300)}
                 >
                   ◀
                 </button>
-                <div className={styles.movieRow} id={`row-${category.genre}`}>
-                  {category.movies.map((serie) => (
-                    <Movie
-                      key={serie.id}
-                      id={serie.id}
-                      title={serie.title}
-                      description={serie.description}
-                      image={serie.image}
-                      rating={serie.rating}
-                    />
-                  ))}
+                <div className={styles.movieRow} id={`row-${genre}`}>
+                  {movies.map((serie) => {
+                    console.log("🎬 Série envoyée à Movie :", {
+                      ...serie,
+                      type: "serie",
+                    });
+                    return (
+                      <Movie
+                        key={`serie-${serie.id}`}
+                        {...serie}
+                        type="serie" // ✅ bien passé ici
+                      />
+                    );
+                  })}
                 </div>
                 <button
                   className={styles.scrollButton}
-                  onClick={() => scrollRow(category.genre, 300)}
+                  onClick={() => scrollRow(genre, 300)}
                 >
                   ▶
                 </button>
