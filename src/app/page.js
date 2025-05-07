@@ -31,7 +31,7 @@ export default async function Home() {
       description={movie.overview}
       image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
       rating={movie.vote_average}
-      type="movie"
+      type="film"
     />
   ));
 
