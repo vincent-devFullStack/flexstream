@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+export async function GET() {
   const { TMDB_API_KEY } = process.env;
 
   try {
@@ -12,18 +12,18 @@ export default async function handler(req, res) {
     ]);
 
     if (!popularRes.ok || !topRatedRes.ok) {
-      return res.status(500).json({ error: "Erreur TMDB" });
+      return Response.json({ error: "Erreur TMDB" }, { status: 500 });
     }
 
     const popular = await popularRes.json();
     const topRated = await topRatedRes.json();
 
-    res.status(200).json({
+    return Response.json({
       popular: popular.results,
       topRated: topRated.results,
     });
   } catch (error) {
     console.error("Erreur API series:", error);
-    res.status(500).json({ error: "Erreur serveur" });
+    return Response.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

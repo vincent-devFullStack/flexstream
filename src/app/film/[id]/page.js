@@ -1,5 +1,5 @@
 import styles from "../../styles/FilmDetail.module.css";
-import { getMovieDetails } from "../../../lib/tmdb";
+import { getMovieDetails } from "../../api/tmdb";
 
 export default async function FilmDetail({ params }) {
   const movie = await getMovieDetails(params.id);

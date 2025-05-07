@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname(); // récupère le chemin actuel
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
@@ -17,6 +18,8 @@ export default function Navbar() {
       router.push(`/recherche?query=${encodeURIComponent(search.trim())}`);
     }
   };
+
+  const getActiveClass = (path) => (pathname === path ? styles.active : "");
 
   return (
     <nav className={styles.navbar}>
@@ -42,13 +45,25 @@ export default function Navbar() {
       </form>
 
       <div className={`${styles.navLinks} ${menuOpen ? styles.showMenu : ""}`}>
-        <Link href="/" onClick={() => setMenuOpen(false)}>
+        <Link
+          href="/"
+          className={getActiveClass("/")}
+          onClick={() => setMenuOpen(false)}
+        >
           Accueil
         </Link>
-        <Link href="/film" onClick={() => setMenuOpen(false)}>
+        <Link
+          href="/film"
+          className={getActiveClass("/film")}
+          onClick={() => setMenuOpen(false)}
+        >
           Films
         </Link>
-        <Link href="/series" onClick={() => setMenuOpen(false)}>
+        <Link
+          href="/series"
+          className={getActiveClass("/series")}
+          onClick={() => setMenuOpen(false)}
+        >
           Séries
         </Link>
         <Link

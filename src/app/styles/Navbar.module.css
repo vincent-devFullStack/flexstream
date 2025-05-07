@@ -70,6 +70,17 @@
   color: white;
   font-weight: 500;
   font-size: 16px;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.navLinks a:hover {
+  color: #ebaf00;
+  transform: translateY(-2px);
+}
+
+.navLinks a.active {
+  border-bottom: 2px solid #ebaf00;
+  padding-bottom: 4px;
 }
 
 .signIn {
@@ -81,6 +92,25 @@
   margin-top: 12px;
   color: rgb(255, 255, 255);
   text-decoration: none;
+}
+
+.signIn,
+.mobileSignIn {
+  background-color: #ebaf00;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 12px;
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.signIn:hover,
+.mobileSignIn:hover {
+  background-color: #ffc940;
+  transform: translateY(-3px);
 }
 
 .desktopOnly {
@@ -120,7 +150,7 @@
 
 @media (max-width: 600px) {
   .searchBar {
-    margin: 10px 0;
+    margin: 10px 20px;
     width: 100%;
   }
 

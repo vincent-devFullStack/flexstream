@@ -1,7 +1,7 @@
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
 import Movie from "../components/Movie";
-import { getPopularMovies } from "../../lib/tmdb";
+import { getPopularMovies } from "../api/tmdb";
 
 export default async function FilmPage() {
   const popular = await getPopularMovies();
