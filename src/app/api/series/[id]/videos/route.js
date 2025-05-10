@@ -1,24 +1,22 @@
-import { NextResponse } from "next/server";
+import { fetchFromTMDB } from "@/lib/tmdb";
 
-export async function GET(_request, { params }) {
-  const id = params?.id;
+export async function GET(_request, context) {
+  const { id } = await context.params; // ✅ pour éviter le warning
+
   if (!id) {
-    return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+    return new Response(JSON.stringify({ error: "ID manquant" }), {
+      status: 400,
+    });
   }
 
-  const TMDB_API_KEY = process.env.TMDB_API_KEY;
-  const endpoint = `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${TMDB_API_KEY}&language=fr-FR`;
-
   try {
-    const res = await fetch(endpoint);
-    if (!res.ok) {
-      throw new Error(`Erreur TMDb : ${res.status}`);
-    }
-
-    const data = await res.json();
-    return NextResponse.json(data);
+    const data = await fetchFromTMDB(`/tv/${id}/videos`, "&language=fr-FR");
+    return new Response(JSON.stringify(data));
   } catch (err) {
-    console.error("Erreur /api/films/[id]/videos :", err);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    console.error("Erreur getVideos série:", err);
+    return new Response(
+      JSON.stringify({ error: "Erreur lors de la récupération des vidéos" }),
+      { status: 500 }
+    );
   }
 }

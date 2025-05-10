@@ -1,4 +1,4 @@
-import { fetchFromTMDB } from "../tmdb";
+import { fetchFromTMDB } from "../../../lib/tmdb";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);

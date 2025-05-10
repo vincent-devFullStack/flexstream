@@ -1,4 +1,4 @@
-import { getMovieDetails } from "../../tmdb";
+import { getMovieDetails } from "@/lib/tmdb";
 
 export async function GET(request, { params }) {
   // ✅ Cette structure déclenche un faux warning dans Next.js 15.3+

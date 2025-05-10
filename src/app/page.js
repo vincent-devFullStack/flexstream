@@ -2,7 +2,7 @@ import styles from "./page.module.css";
 import Movie from "./components/Movie";
 import Navbar from "./components/Navbar";
 import Carousel from "./components/Carousel";
-import { getPopularMovies } from "./api/tmdb";
+import { getPopularMovies } from "../lib/tmdb";
 
 export default async function Home() {
   const movies = await getPopularMovies();

@@ -1,42 +1,54 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, usePathname } from "next/navigation";
+import ProviderSection from "../../components/ProviderSection";
 import styles from "../../styles/FilmDetail.module.css";
+import { BiSolidLeftArrow } from "react-icons/bi";
 
 export default function FilmDetail() {
   const params = useParams();
-  const pathname = usePathname(); // pour détecter si on est sur /film ou /series
+  const pathname = usePathname();
   const isSerie = pathname.includes("/series");
-  const type = isSerie ? "series" : "films";
+  const type = isSerie ? "tv" : "movie";
 
   const [movie, setMovie] = useState(null);
   const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
+  const [providers, setProviders] = useState({
+    flatrate: [],
+    rent: [],
+    buy: [],
+  });
 
   useEffect(() => {
     if (!params?.id) return;
 
     async function fetchMedia() {
       try {
-        // Infos de la série ou du film
-        const res = await fetch(`/api/${type}/${params.id}`);
+        const res = await fetch(
+          `/api/${type === "tv" ? "series" : "films"}/${params.id}`
+        );
         const data = await res.json();
         setMovie(data);
 
-        // Bande-annonce
-        const videoRes = await fetch(`/api/${type}/${params.id}/videos`);
+        const videoRes = await fetch(
+          `/api/${type === "tv" ? "series" : "films"}/${params.id}/videos`
+        );
         const videoData = await videoRes.json();
         const trailer = videoData.results?.find(
           (v) => v.site === "YouTube" && v.type === "Trailer"
         );
         if (trailer) setTrailerKey(trailer.key);
 
-        // Note utilisateur
         const savedRating = localStorage.getItem(`rating-${params.id}`);
         if (savedRating) setRating(parseInt(savedRating));
+
+        const provRes = await fetch(`/api/providers/${type}/${params.id}`);
+        const provData = await provRes.json();
+        setProviders(provData);
       } catch (error) {
-        console.error(`Erreur lors du chargement de la ${type} :`, error);
+        console.error("Erreur chargement complet :", error);
       }
     }
 
@@ -75,7 +87,11 @@ export default function FilmDetail() {
           {movie.genres.map((g) => g.name).join(", ")}
         </p>
 
-        <p className={styles.overview}>{movie.overview}</p>
+        <p className={styles.overview}>
+          {movie.overview?.trim()
+            ? movie.overview
+            : "Aucune description disponible pour ce film."}
+        </p>
 
         {trailerKey && (
           <div className={styles.trailer}>
@@ -89,6 +105,24 @@ export default function FilmDetail() {
               allowFullScreen
             ></iframe>
           </div>
+        )}
+
+        {providers.flatrate.length > 0 ||
+        providers.rent.length > 0 ||
+        providers.buy.length > 0 ? (
+          <>
+            <ProviderSection
+              title="En streaming avec abonnement"
+              providers={providers.flatrate}
+            />
+            <ProviderSection title="À la location" providers={providers.rent} />
+            <ProviderSection title="À l'achat" providers={providers.buy} />
+          </>
+        ) : (
+          <p style={{ marginTop: "1rem", fontStyle: "italic", color: "#aaa" }}>
+            Aucune plateforme de streaming n'est disponible pour ce{" "}
+            {type === "tv" ? "série" : "film"}.
+          </p>
         )}
 
         <div className={styles.actions}>
@@ -119,7 +153,10 @@ export default function FilmDetail() {
         </div>
 
         <a href="/" className={styles.backButton}>
-          ← Retour
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <BiSolidLeftArrow style={{ fontSize: "1rem" }} />
+            <span>Retour</span>
+          </span>
         </a>
       </div>
     </div>

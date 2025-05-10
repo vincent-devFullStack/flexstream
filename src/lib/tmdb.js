@@ -1,10 +1,15 @@
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
-// Fonction générique
+if (!TMDB_API_KEY) {
+  throw new Error("TMDB_API_KEY manquante. Vérifie ton .env.local");
+}
+
 export async function fetchFromTMDB(endpoint, params = "") {
   const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}${params}`;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    next: { revalidate: 3600 }, // ou cache: "no-store"
+  });
 
   if (!res.ok) {
     const errorText = await res.text();
@@ -54,4 +59,24 @@ export async function getTopRatedSeries() {
 
 export async function getSerieDetails(id) {
   return fetchFromTMDB(`/tv/${id}`, "&language=fr-FR");
+}
+
+export async function getWatchProviders(id, type = "movie") {
+  const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${TMDB_API_KEY}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error(`Erreur TMDB (${url})`, res.status, text);
+    return {};
+  }
+
+  const data = await res.json();
+  const results = data.results?.FR || {};
+
+  return {
+    flatrate: results.flatrate || [],
+    rent: results.rent || [],
+    buy: results.buy || [],
+  };
 }

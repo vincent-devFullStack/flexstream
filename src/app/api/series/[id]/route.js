@@ -1,7 +1,7 @@
-import { getSerieDetails } from "../../tmdb";
+import { getSerieDetails } from "@/lib/tmdb";
 
-export async function GET(_request, { params }) {
-  const id = params?.id;
+export async function GET(_request, context) {
+  const { id } = await context.params; // ✅ nécessaire pour éviter le warning Next.js
 
   if (!id) {
     return Response.json({ error: "ID manquant" }, { status: 400 });

@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import ProviderSection from "../../components/ProviderSection";
 import styles from "../../styles/FilmDetail.module.css";
+import { BiSolidLeftArrow } from "react-icons/bi";
 
 export default function SerieDetail() {
   const params = useParams();
@@ -9,6 +11,11 @@ export default function SerieDetail() {
   const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
+  const [providers, setProviders] = useState({
+    flatrate: [],
+    rent: [],
+    buy: [],
+  });
 
   useEffect(() => {
     if (!params?.id) return;
@@ -28,6 +35,10 @@ export default function SerieDetail() {
 
         const savedRating = localStorage.getItem(`rating-serie-${params.id}`);
         if (savedRating) setRating(parseInt(savedRating));
+
+        const provRes = await fetch(`/api/providers/tv/${params.id}`);
+        const provData = await provRes.json();
+        setProviders(provData);
       } catch (error) {
         console.error("Erreur chargement série :", error);
       }
@@ -64,7 +75,11 @@ export default function SerieDetail() {
           ⭐ {serie.vote_average.toFixed(1)} —{" "}
           {serie.genres.map((g) => g.name).join(", ")}
         </p>
-        <p className={styles.overview}>{serie.overview}</p>
+        <p className={styles.overview}>
+          {serie.overview?.trim()
+            ? serie.overview
+            : "Aucune description disponible pour cette série."}
+        </p>
 
         {trailerKey && (
           <div className={styles.trailer}>
@@ -78,6 +93,23 @@ export default function SerieDetail() {
               allowFullScreen
             ></iframe>
           </div>
+        )}
+
+        {providers.flatrate.length > 0 ||
+        providers.rent.length > 0 ||
+        providers.buy.length > 0 ? (
+          <>
+            <ProviderSection
+              title="En streaming avec abonnement"
+              providers={providers.flatrate}
+            />
+            <ProviderSection title="À la location" providers={providers.rent} />
+            <ProviderSection title="À l'achat" providers={providers.buy} />
+          </>
+        ) : (
+          <p style={{ marginTop: "1rem", fontStyle: "italic", color: "#aaa" }}>
+            Aucune plateforme de streaming n'est disponible pour cette série.
+          </p>
         )}
 
         <div className={styles.actions}>
@@ -108,7 +140,10 @@ export default function SerieDetail() {
         </div>
 
         <a href="/" className={styles.backButton}>
-          ← Retour
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <BiSolidLeftArrow style={{ fontSize: "1rem" }} />
+            <span>Retour</span>
+          </span>
         </a>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { getSearchResults } from "../api/tmdb";
+import { getSearchResults } from "../../lib/tmdb";
 import Movie from "../components/Movie";
 import styles from "../page.module.css";
 
