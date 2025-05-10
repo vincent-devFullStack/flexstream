@@ -125,6 +125,9 @@ export default function SeriesPage() {
           ))
         )}
       </main>
+      <footer className={styles.footer}>
+        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
+      </footer>
     </>
   );
 }

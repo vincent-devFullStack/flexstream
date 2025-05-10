@@ -30,6 +30,31 @@ export default async function FilmPage() {
     })),
   }));
 
+  function getGenreNameById(id) {
+    const genreMap = {
+      28: "Action",
+      12: "Aventure",
+      16: "Animation",
+      35: "Comédie",
+      80: "Crime",
+      99: "Documentaire",
+      18: "Drame",
+      10751: "Famille",
+      14: "Fantasy",
+      36: "Histoire",
+      27: "Horreur",
+      10402: "Musique",
+      9648: "Mystère",
+      10749: "Romance",
+      878: "Science-fiction",
+      10770: "Téléfilm",
+      53: "Thriller",
+      10752: "Guerre",
+      37: "Western",
+    };
+    return genreMap[id] || "Autre";
+  }
+
   return (
     <>
       <Navbar />
@@ -62,32 +87,9 @@ export default async function FilmPage() {
           </section>
         ))}
       </main>
+      <footer className={styles.footer}>
+        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
+      </footer>
     </>
   );
-}
-
-// Fonction pour traduire les IDs TMDB en noms de genres
-function getGenreNameById(id) {
-  const genreMap = {
-    28: "Action",
-    12: "Aventure",
-    16: "Animation",
-    35: "Comédie",
-    80: "Crime",
-    99: "Documentaire",
-    18: "Drame",
-    10751: "Famille",
-    14: "Fantasy",
-    36: "Histoire",
-    27: "Horreur",
-    10402: "Musique",
-    9648: "Mystère",
-    10749: "Romance",
-    878: "Science-fiction",
-    10770: "Téléfilm",
-    53: "Thriller",
-    10752: "Guerre",
-    37: "Western",
-  };
-  return genreMap[id] || "Autre";
 }
