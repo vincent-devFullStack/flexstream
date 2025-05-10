@@ -51,3 +51,21 @@
   color: inherit;
   display: block;
 }
+
+@media screen and (max-width: 600px) {
+  .vignette {
+    width: 135px;
+    min-height: 180px;
+    padding: 0.8rem;
+    margin: 0.5rem auto;
+  }
+
+  .vignette h2 {
+    font-size: 0.8rem;
+  }
+
+  .vignette p {
+    font-size: 0.9rem;
+    display: none;
+  }
+}

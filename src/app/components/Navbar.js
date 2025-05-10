@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
 
@@ -10,6 +10,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchRef = useRef(null);
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
@@ -45,6 +46,29 @@ export default function Navbar() {
     return () => clearTimeout(debounce);
   }, [search]);
 
+  // Gérer clic extérieur + touche Échap
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSuggestions([]);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        setSuggestions([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, []);
+
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.logo}>
@@ -56,7 +80,11 @@ export default function Navbar() {
         />
       </Link>
 
-      <form onSubmit={handleSearchSubmit} className={styles.searchBar}>
+      <form
+        onSubmit={handleSearchSubmit}
+        className={styles.searchBar}
+        ref={searchRef}
+      >
         <input
           type="text"
           placeholder="Rechercher un film..."
@@ -86,11 +114,11 @@ export default function Navbar() {
                     alt={movie.title}
                     className={styles.suggestionImage}
                   />
-                  <div className={styles.suggestionInfo}>
+                  <div className={styles.suggestionContent}>
                     <span className={styles.suggestionTitle}>
                       {movie.title}
                     </span>
-                    <span className={styles.suggestionNote}>
+                    <span className={styles.suggestionRating}>
                       ⭐ {movie.vote_average?.toFixed(1)}
                     </span>
                   </div>
