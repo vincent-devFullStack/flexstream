@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, usePathname } from "next/navigation";
 import ProviderSection from "../../components/ProviderSection";
+import CastSection from "../../components/CastSection";
 import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
 
@@ -20,18 +21,21 @@ export default function FilmDetail() {
     rent: [],
     buy: [],
   });
+  const [cast, setCast] = useState([]);
 
   useEffect(() => {
     if (!params?.id) return;
 
     async function fetchMedia() {
       try {
+        // Détail du film ou série
         const res = await fetch(
           `/api/${type === "tv" ? "series" : "films"}/${params.id}`
         );
         const data = await res.json();
         setMovie(data);
 
+        // Vidéos
         const videoRes = await fetch(
           `/api/${type === "tv" ? "series" : "films"}/${params.id}/videos`
         );
@@ -41,12 +45,19 @@ export default function FilmDetail() {
         );
         if (trailer) setTrailerKey(trailer.key);
 
-        const savedRating = localStorage.getItem(`rating-${params.id}`);
-        if (savedRating) setRating(parseInt(savedRating));
-
+        // Plateformes
         const provRes = await fetch(`/api/providers/${type}/${params.id}`);
         const provData = await provRes.json();
         setProviders(provData);
+
+        // Casting
+        const castRes = await fetch(`/api/credits/${type}/${params.id}`);
+        const castData = await castRes.json();
+        setCast(Array.isArray(castData.cast) ? castData.cast.slice(0, 10) : []);
+
+        // Note utilisateur
+        const savedRating = localStorage.getItem(`rating-${params.id}`);
+        if (savedRating) setRating(parseInt(savedRating));
       } catch (error) {
         console.error("Erreur chargement complet :", error);
       }
@@ -106,6 +117,8 @@ export default function FilmDetail() {
             ></iframe>
           </div>
         )}
+
+        <CastSection cast={cast} />
 
         {providers.flatrate.length > 0 ||
         providers.rent.length > 0 ||

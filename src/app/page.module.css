@@ -166,6 +166,15 @@
   transition: transform 0.2s ease;
 }
 
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 600px) {
   .page {
     padding: 64px 16px 80px 16px;

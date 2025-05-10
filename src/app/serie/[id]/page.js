@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProviderSection from "../../components/ProviderSection";
+import CastSection from "../../components/CastSection";
 import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
 
@@ -16,6 +17,7 @@ export default function SerieDetail() {
     rent: [],
     buy: [],
   });
+  const [cast, setCast] = useState([]);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -39,6 +41,10 @@ export default function SerieDetail() {
         const provRes = await fetch(`/api/providers/tv/${params.id}`);
         const provData = await provRes.json();
         setProviders(provData);
+
+        const castRes = await fetch(`/api/credits/tv/${params.id}`);
+        const castData = await castRes.json();
+        setCast(Array.isArray(castData.cast) ? castData.cast.slice(0, 10) : []);
       } catch (error) {
         console.error("Erreur chargement série :", error);
       }
@@ -94,6 +100,8 @@ export default function SerieDetail() {
             ></iframe>
           </div>
         )}
+
+        <CastSection cast={cast} />
 
         {providers.flatrate.length > 0 ||
         providers.rent.length > 0 ||
