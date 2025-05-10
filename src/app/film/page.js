@@ -1,59 +1,81 @@
+"use client";
+import { useEffect, useState, useCallback } from "react";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
 import Movie from "../components/Movie";
-import { getPopularMovies } from "../../lib/tmdb";
 
-export default async function FilmPage() {
-  const popular = await getPopularMovies();
+export default function FilmPage() {
+  const [categories, setCategories] = useState([]);
 
-  // Regrouper les films par genre
-  const genreMap = {};
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/films");
+        const { popular, topRated } = await res.json(); // ✅ destructure bien
 
-  popular.forEach((movie) => {
-    movie.genre_ids.forEach((genreId) => {
-      const genreName = getGenreNameById(genreId);
-      if (!genreMap[genreName]) {
-        genreMap[genreName] = [];
+        const genreNames = {
+          28: "Action",
+          12: "Aventure",
+          16: "Animation",
+          35: "Comédie",
+          80: "Crime",
+          99: "Documentaire",
+          18: "Drame",
+          10751: "Famille",
+          14: "Fantasy",
+          36: "Histoire",
+          27: "Horreur",
+          10402: "Musique",
+          9648: "Mystère",
+          10749: "Romance",
+          878: "Science-fiction",
+          10770: "Téléfilm",
+          53: "Thriller",
+          10752: "Guerre",
+          37: "Western",
+        };
+
+        const genreMap = {};
+
+        [...popular, ...topRated].forEach((movie) => {
+          movie.genre_ids.forEach((id) => {
+            const genre = genreNames[id];
+            if (!genre) return;
+
+            if (!genreMap[genre]) genreMap[genre] = [];
+
+            genreMap[genre].push({
+              id: movie.id,
+              title: movie.title,
+              description: movie.overview || "Pas de description disponible",
+              image: movie.poster_path
+                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                : "/placeholder.jpg",
+              rating: movie.vote_average,
+            });
+          });
+        });
+
+        const result = Object.entries(genreMap).map(([genre, movies]) => ({
+          genre,
+          movies,
+        }));
+
+        setCategories(result);
+      } catch (error) {
+        console.error("Erreur chargement films :", error);
       }
-      genreMap[genreName].push(movie);
-    });
-  });
+    }
 
-  const categories = Object.keys(genreMap).map((genre) => ({
-    genre,
-    movies: genreMap[genre].map((m) => ({
-      id: m.id,
-      title: m.title,
-      description: m.overview,
-      image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
-      rating: m.vote_average,
-    })),
-  }));
+    fetchData();
+  }, []);
 
-  function getGenreNameById(id) {
-    const genreMap = {
-      28: "Action",
-      12: "Aventure",
-      16: "Animation",
-      35: "Comédie",
-      80: "Crime",
-      99: "Documentaire",
-      18: "Drame",
-      10751: "Famille",
-      14: "Fantasy",
-      36: "Histoire",
-      27: "Horreur",
-      10402: "Musique",
-      9648: "Mystère",
-      10749: "Romance",
-      878: "Science-fiction",
-      10770: "Téléfilm",
-      53: "Thriller",
-      10752: "Guerre",
-      37: "Western",
-    };
-    return genreMap[id] || "Autre";
-  }
+  const scrollRow = useCallback((genre, scrollAmount) => {
+    const row = document.getElementById(`row-${genre}`);
+    if (row) {
+      row.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  }, []);
 
   return (
     <>
@@ -66,27 +88,34 @@ export default async function FilmPage() {
           </p>
         </div>
       </header>
+
       <main className={`${styles.main} backgrounds`}>
-        {categories.map((category) => (
-          <section key={category.genre}>
-            <h2 className={styles.sectionTitle}>{category.genre}</h2>
+        {categories.map(({ genre, movies }) => (
+          <section key={genre}>
+            <h2 className={styles.sectionTitle}>{genre}</h2>
             <div className={styles.movieRowWrapper}>
-              <div className={styles.movieRow} id={`row-${category.genre}`}>
-                {category.movies.map((movie) => (
-                  <Movie
-                    key={movie.id}
-                    id={movie.id}
-                    title={movie.title}
-                    description={movie.description}
-                    image={movie.image}
-                    rating={movie.rating}
-                  />
+              <button
+                className={styles.scrollButton}
+                onClick={() => scrollRow(genre, -300)}
+              >
+                ◀
+              </button>
+              <div className={styles.movieRow} id={`row-${genre}`}>
+                {movies.map((movie) => (
+                  <Movie key={`movie-${movie.id}`} {...movie} type="film" />
                 ))}
               </div>
+              <button
+                className={styles.scrollButton}
+                onClick={() => scrollRow(genre, 300)}
+              >
+                ▶
+              </button>
             </div>
           </section>
         ))}
       </main>
+
       <footer className={styles.footer}>
         <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
       </footer>

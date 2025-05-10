@@ -23,17 +23,19 @@ export default async function Home() {
     />
   ));
 
-  const movieGrid = movies.map((movie) => (
-    <Movie
-      key={`grid-${movie.id}`}
-      id={movie.id}
-      title={movie.title}
-      description={movie.overview}
-      image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-      rating={movie.vote_average}
-      type="film"
-    />
-  ));
+  const movieGrid = movies
+    .slice(0, 6)
+    .map((movie) => (
+      <Movie
+        key={`grid-${movie.id}`}
+        id={movie.id}
+        title={movie.title}
+        description={movie.overview}
+        image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        rating={movie.vote_average}
+        type="film"
+      />
+    ));
 
   return (
     <>
