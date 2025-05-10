@@ -124,6 +124,12 @@
   color: #ffd700;
 }
 
+.suggestionType {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
 /* Navigation links */
 .navLinks {
   display: flex;

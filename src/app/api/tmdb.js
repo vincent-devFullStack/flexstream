@@ -1,8 +1,6 @@
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
-console.log("Clé TMDB chargée :", TMDB_API_KEY);
-
 // Fonction générique
 export async function fetchFromTMDB(endpoint, params = "") {
   const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}${params}`;

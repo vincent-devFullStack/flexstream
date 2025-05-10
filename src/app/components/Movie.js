@@ -11,15 +11,6 @@ export default function Movie({
   rating,
   type = "film", // Par défaut : film
 }) {
-  console.log("🎯 Movie rendu client :", {
-    id,
-    title,
-    description,
-    image,
-    rating,
-    type,
-  });
-  console.log("🔍 Movie rendu :", { id, title, type });
   const ref = useRef();
   const [isVisible, setIsVisible] = useState(false);
 

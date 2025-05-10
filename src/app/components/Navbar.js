@@ -33,7 +33,18 @@ export default function Navbar() {
           );
           const data = await res.json();
           const safeResults = Array.isArray(data.results) ? data.results : [];
-          setSuggestions(safeResults.slice(0, 5));
+
+          const movies = safeResults
+            .filter((item) => item.type === "movie")
+            .sort((a, b) => b.popularity - a.popularity)
+            .slice(0, 4);
+
+          const series = safeResults
+            .filter((item) => item.type === "tv")
+            .sort((a, b) => b.popularity - a.popularity)
+            .slice(0, 4);
+
+          setSuggestions([...series, ...movies]);
         } catch (err) {
           console.error("Erreur suggestions :", err);
         }
@@ -46,7 +57,6 @@ export default function Navbar() {
     return () => clearTimeout(debounce);
   }, [search]);
 
-  // Gérer clic extérieur + touche Échap
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -87,39 +97,51 @@ export default function Navbar() {
       >
         <input
           type="text"
-          placeholder="Rechercher un film..."
+          placeholder="Rechercher un film ou une série..."
           value={search}
           onChange={handleSearchChange}
           autoComplete="off"
         />
-        <button type="submit">
-          <img src="/icons/search.svg" alt="Search" width={16} height={16} />
+        <button type="submit" className={styles.searchButton}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            fill="#ffc940"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21.71 20.29l-3.388-3.388A8.94 8.94 0 0 0 19 11a9 9 0 1 0-9 9 8.94 8.94 0 0 0 5.902-2.679l3.388 3.388a1 1 0 0 0 1.42-1.42zM4 11a7 7 0 1 1 7 7 7 7 0 0 1-7-7z" />
+          </svg>
         </button>
 
         {suggestions.length > 0 && (
           <ul className={styles.suggestions}>
-            {suggestions.map((movie) => (
-              <li key={movie.id} className={styles.suggestionItem}>
+            {suggestions.map((item) => (
+              <li
+                key={`${item.type}-${item.id}`}
+                className={styles.suggestionItem}
+              >
                 <Link
-                  href={`/film/${movie.id}`}
+                  href={`/${item.type === "tv" ? "serie" : "film"}/${item.id}`}
                   onClick={() => setSuggestions([])}
                   className={styles.suggestionLink}
                 >
                   <img
                     src={
-                      movie.poster_path
-                        ? `https://image.tmdb.org/t/p/w92${movie.poster_path}`
+                      item.poster_path
+                        ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
                         : "/placeholder.jpg"
                     }
-                    alt={movie.title}
+                    alt={item.title}
                     className={styles.suggestionImage}
                   />
                   <div className={styles.suggestionContent}>
-                    <span className={styles.suggestionTitle}>
-                      {movie.title}
-                    </span>
+                    <span className={styles.suggestionTitle}>{item.title}</span>
                     <span className={styles.suggestionRating}>
-                      ⭐ {movie.vote_average?.toFixed(1)}
+                      ⭐ {item.vote_average?.toFixed(1)}
+                    </span>
+                    <span className={styles.suggestionType}>
+                      {item.type === "tv" ? "📺 Série" : "🎬 Film"}
                     </span>
                   </div>
                 </Link>
