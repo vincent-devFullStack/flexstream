@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 
 export default function CastSection({ cast = [] }) {
@@ -8,11 +8,11 @@ export default function CastSection({ cast = [] }) {
 
   if (!cast.length) return null;
 
-  const scroll = (direction) => {
+  const scrollByDirection = (dir) => {
     const container = scrollRef.current;
     if (container) {
       container.scrollBy({
-        left: direction === "left" ? -300 : 300,
+        left: dir === "left" ? -300 : 300,
         behavior: "smooth",
       });
     }
@@ -22,44 +22,15 @@ export default function CastSection({ cast = [] }) {
     <div style={{ marginTop: "2rem", position: "relative" }}>
       <h3 style={{ marginBottom: "0.5rem" }}>Têtes d'affiche</h3>
 
-      <button
-        onClick={() => scroll("left")}
-        style={{
-          position: "absolute",
-          left: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 1,
-          background: "rgba(0, 0, 0, 0.5)",
-          border: "none",
-          borderRadius: "50%",
-          padding: "0.5rem",
-          cursor: "pointer",
-        }}
-      >
-        <BiChevronLeft size={24} color="#fff" />
-      </button>
+      {/* Bouton gauche */}
+      <ScrollButton direction="left" onClick={scrollByDirection} />
 
-      <button
-        onClick={() => scroll("right")}
-        style={{
-          position: "absolute",
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 1,
-          background: "rgba(0, 0, 0, 0.5)",
-          border: "none",
-          borderRadius: "50%",
-          padding: "0.5rem",
-          cursor: "pointer",
-        }}
-      >
-        <BiChevronRight size={24} color="#fff" />
-      </button>
+      {/* Bouton droit */}
+      <ScrollButton direction="right" onClick={scrollByDirection} />
 
       <div
         ref={scrollRef}
+        className="hide-scrollbar"
         style={{
           display: "flex",
           gap: "12px",
@@ -69,7 +40,6 @@ export default function CastSection({ cast = [] }) {
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
-        className="hide-scrollbar"
       >
         {cast.map((actor) => (
           <div key={actor.id} style={{ textAlign: "center", width: "120px" }}>
@@ -82,9 +52,9 @@ export default function CastSection({ cast = [] }) {
               alt={actor.name}
               style={{
                 width: "100px",
-                borderRadius: "8px",
-                objectFit: "cover",
                 height: "120px",
+                objectFit: "cover",
+                borderRadius: "8px",
                 marginBottom: "0.5rem",
               }}
             />
@@ -96,5 +66,31 @@ export default function CastSection({ cast = [] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+function ScrollButton({ direction, onClick }) {
+  const isLeft = direction === "left";
+  const Icon = isLeft ? BiChevronLeft : BiChevronRight;
+
+  return (
+    <button
+      onClick={() => onClick(direction)}
+      aria-label={`Faire défiler vers la ${isLeft ? "gauche" : "droite"}`}
+      style={{
+        position: "absolute",
+        top: "50%",
+        [isLeft ? "left" : "right"]: 0,
+        transform: "translateY(-50%)",
+        zIndex: 1,
+        background: "rgba(0, 0, 0, 0.5)",
+        border: "none",
+        borderRadius: "50%",
+        padding: "0.5rem",
+        cursor: "pointer",
+      }}
+    >
+      <Icon size={24} color="#fff" />
+    </button>
   );
 }

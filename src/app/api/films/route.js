@@ -1,4 +1,4 @@
-import { fetchFromTMDB } from "../../../lib/tmdb";
+import { fetchFromTMDB } from "@/lib/tmdb";
 
 export async function GET() {
   try {
@@ -9,11 +9,23 @@ export async function GET() {
       fetchFromTMDB("/movie/top_rated", "&language=fr-FR&page=2"),
     ]);
 
-    return Response.json({
-      popular: [...popular1.results, ...popular2.results],
-      topRated: [...topRated1.results, ...topRated2.results],
+    const popular = [
+      ...(popular1?.results || []),
+      ...(popular2?.results || []),
+    ];
+    const topRated = [
+      ...(topRated1?.results || []),
+      ...(topRated2?.results || []),
+    ];
+
+    return new Response(JSON.stringify({ popular, topRated }), {
+      status: 200,
     });
-  } catch (error) {
-    return Response.json({ error: "Erreur serveur" }, { status: 500 });
+  } catch (err) {
+    console.error("[TMDB] Erreur récupération films :", err);
+    return new Response(
+      JSON.stringify({ error: "Impossible de récupérer les films" }),
+      { status: 500 }
+    );
   }
 }

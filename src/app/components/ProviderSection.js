@@ -1,34 +1,37 @@
 "use client";
 
-import React from "react";
-
 export default function ProviderSection({ title, providers = [] }) {
   if (!providers.length) return null;
 
   return (
-    <div style={{ marginTop: "1rem" }}>
+    <section style={{ marginTop: "1rem" }}>
       <h4 style={{ marginBottom: "0.5rem" }}>{title} :</h4>
+
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-        {providers.map((p) => (
+        {providers.map((provider) => (
           <a
-            key={p.provider_id}
-            href={p.link}
+            key={provider.provider_id}
+            href={provider.link}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`Voir ${provider.provider_name} pour ce contenu`}
           >
             <img
-              src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
-              alt={p.provider_name}
-              title={p.provider_name}
+              src={`https://image.tmdb.org/t/p/w45${provider.logo_path}`}
+              alt={`Logo ${provider.provider_name}`}
+              title={provider.provider_name}
               style={{
-                backgroundColor: "white",
+                backgroundColor: "#fff",
                 borderRadius: "6px",
                 padding: "4px",
+                width: "45px",
+                height: "45px",
+                objectFit: "contain",
               }}
             />
           </a>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

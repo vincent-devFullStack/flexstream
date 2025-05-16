@@ -1,6 +1,6 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
 
@@ -22,39 +22,50 @@ export default function Navbar() {
     }
   };
 
-  const getActiveClass = (path) => (pathname === path ? styles.active : "");
+  const isActive = (path) => (pathname === path ? styles.active : "");
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchSuggestions = async () => {
-      if (search.length > 2) {
-        try {
-          const res = await fetch(
-            `/api/recherche?query=${encodeURIComponent(search)}`
-          );
-          const data = await res.json();
-          const safeResults = Array.isArray(data.results) ? data.results : [];
-
-          const movies = safeResults
-            .filter((item) => item.type === "movie")
-            .sort((a, b) => b.popularity - a.popularity)
-            .slice(0, 4);
-
-          const series = safeResults
-            .filter((item) => item.type === "tv")
-            .sort((a, b) => b.popularity - a.popularity)
-            .slice(0, 4);
-
-          setSuggestions([...series, ...movies]);
-        } catch (err) {
-          console.error("Erreur suggestions :", err);
-        }
-      } else {
+      if (search.length <= 2) {
         setSuggestions([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `/api/recherche?query=${encodeURIComponent(search)}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        const data = await res.json();
+        const results = Array.isArray(data.results) ? data.results : [];
+
+        const movies = results
+          .filter((item) => item.type === "movie")
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 4);
+
+        const series = results
+          .filter((item) => item.type === "tv")
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 4);
+
+        setSuggestions([...series, ...movies]);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Erreur lors du chargement des suggestions :", err);
+        }
       }
     };
 
     const debounce = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounce);
+    return () => {
+      clearTimeout(debounce);
+      controller.abort();
+    };
   }, [search]);
 
   useEffect(() => {
@@ -65,9 +76,7 @@ export default function Navbar() {
     };
 
     const handleEscapeKey = (event) => {
-      if (event.key === "Escape") {
-        setSuggestions([]);
-      }
+      if (event.key === "Escape") setSuggestions([]);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -81,10 +90,10 @@ export default function Navbar() {
 
   return (
     <nav className={styles.navbar}>
-      <Link href="/" className={styles.logo}>
+      <Link href="/" className={styles.logo} aria-label="Accueil Flexstream">
         <img
           src="/flexstream.svg"
-          alt="Logo flexstream"
+          alt="Logo Flexstream"
           width={120}
           height={30}
         />
@@ -101,8 +110,13 @@ export default function Navbar() {
           value={search}
           onChange={handleSearchChange}
           autoComplete="off"
+          aria-label="Recherche"
         />
-        <button type="submit" className={styles.searchButton}>
+        <button
+          type="submit"
+          className={styles.searchButton}
+          aria-label="Lancer la recherche"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"
@@ -123,8 +137,8 @@ export default function Navbar() {
               >
                 <Link
                   href={`/${item.type === "tv" ? "serie" : "film"}/${item.id}`}
-                  onClick={() => setSuggestions([])}
                   className={styles.suggestionLink}
+                  onClick={() => setSuggestions([])}
                 >
                   <img
                     src={
@@ -132,7 +146,7 @@ export default function Navbar() {
                         ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
                         : "/placeholder.jpg"
                     }
-                    alt={item.title}
+                    alt={`Affiche de ${item.title}`}
                     className={styles.suggestionImage}
                   />
                   <div className={styles.suggestionContent}>
@@ -154,21 +168,21 @@ export default function Navbar() {
       <div className={`${styles.navLinks} ${menuOpen ? styles.showMenu : ""}`}>
         <Link
           href="/"
-          className={getActiveClass("/")}
+          className={isActive("/")}
           onClick={() => setMenuOpen(false)}
         >
           Accueil
         </Link>
         <Link
           href="/film"
-          className={getActiveClass("/film")}
+          className={isActive("/film")}
           onClick={() => setMenuOpen(false)}
         >
           Films
         </Link>
         <Link
           href="/serie"
-          className={getActiveClass("/series")}
+          className={isActive("/series")}
           onClick={() => setMenuOpen(false)}
         >
           Séries
@@ -191,7 +205,7 @@ export default function Navbar() {
       <button
         className={styles.burger}
         onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Menu"
+        aria-label="Ouvrir ou fermer le menu"
       >
         ☰
       </button>

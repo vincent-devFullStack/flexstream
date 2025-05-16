@@ -1,15 +1,17 @@
-import { fetchFromTMDB } from "../../../lib/tmdb";
+import { fetchFromTMDB } from "@/lib/tmdb";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query");
 
   if (!query) {
-    return Response.json({ results: [] });
+    return new Response(JSON.stringify({ results: [] }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {
-    // Appels parallèles pour films et séries
     const [movieData, tvData] = await Promise.all([
       fetchFromTMDB(
         "/search/movie",
@@ -21,7 +23,6 @@ export async function GET(request) {
       ),
     ]);
 
-    // Normalisation des résultats avec type
     const movieResults = (movieData.results || []).map((item) => ({
       id: item.id,
       title: item.title,
@@ -38,12 +39,17 @@ export async function GET(request) {
       type: "tv",
     }));
 
-    // Fusion et limite
     const combined = [...movieResults, ...tvResults].slice(0, 10);
 
-    return Response.json({ results: combined });
-  } catch (error) {
-    console.error("Erreur /api/recherche :", error);
-    return Response.json({ error: "Erreur serveur" }, { status: 500 });
+    return new Response(JSON.stringify({ results: combined }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error(`[TMDB] Erreur recherche "${query}" :`, err);
+    return new Response(
+      JSON.stringify({ error: "Une erreur est survenue lors de la recherche" }),
+      { status: 500 }
+    );
   }
 }

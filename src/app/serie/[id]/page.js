@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProviderSection from "../../components/ProviderSection";
@@ -7,7 +8,8 @@ import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
 
 export default function SerieDetail() {
-  const params = useParams();
+  const { id } = useParams();
+
   const [serie, setSerie] = useState(null);
   const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
@@ -20,45 +22,59 @@ export default function SerieDetail() {
   const [cast, setCast] = useState([]);
 
   useEffect(() => {
-    if (!params?.id) return;
+    if (!id) return;
 
-    async function fetchSerie() {
+    async function loadSerieDetails() {
       try {
-        const res = await fetch(`/api/series/${params.id}`);
-        const data = await res.json();
-        setSerie(data);
+        const [detailRes, videoRes, providerRes, castRes] = await Promise.all([
+          fetch(`/api/series/${id}`),
+          fetch(`/api/series/${id}/videos`),
+          fetch(`/api/providers/tv/${id}`),
+          fetch(`/api/credits/tv/${id}`),
+        ]);
 
-        const videoRes = await fetch(`/api/series/${params.id}/videos`);
-        const videoData = await videoRes.json();
+        const [detailData, videoData, providerData, castData] =
+          await Promise.all([
+            detailRes.json(),
+            videoRes.json(),
+            providerRes.json(),
+            castRes.json(),
+          ]);
+
+        setSerie(detailData);
+
         const trailer = videoData.results?.find(
           (v) => v.site === "YouTube" && v.type === "Trailer"
         );
         if (trailer) setTrailerKey(trailer.key);
 
-        const savedRating = localStorage.getItem(`rating-serie-${params.id}`);
-        if (savedRating) setRating(parseInt(savedRating));
-
-        const provRes = await fetch(`/api/providers/tv/${params.id}`);
-        const provData = await provRes.json();
-        setProviders(provData);
-
-        const castRes = await fetch(`/api/credits/tv/${params.id}`);
-        const castData = await castRes.json();
+        setProviders(providerData);
         setCast(Array.isArray(castData.cast) ? castData.cast.slice(0, 10) : []);
-      } catch (error) {
-        console.error("Erreur chargement série :", error);
+
+        const savedRating = localStorage.getItem(`rating-serie-${id}`);
+        if (savedRating) setRating(parseInt(savedRating));
+      } catch (err) {
+        console.error(
+          `[Serie] Erreur lors du chargement de la série ${id} :`,
+          err
+        );
       }
     }
 
-    fetchSerie();
-  }, [params?.id]);
+    loadSerieDetails();
+  }, [id]);
 
   const handleRate = (value) => {
     setRating(value);
-    localStorage.setItem(`rating-serie-${params.id}`, value);
+    localStorage.setItem(`rating-serie-${id}`, value);
   };
 
   if (!serie) return <p className={styles.loading}>Chargement...</p>;
+
+  const title = serie.name;
+  const date = serie.first_air_date;
+  const description =
+    serie.overview?.trim() || "Aucune description disponible pour cette série.";
 
   return (
     <div className={styles.container}>
@@ -68,24 +84,21 @@ export default function SerieDetail() {
             ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
             : "/placeholder.jpg"
         }
-        alt={serie.name}
+        alt={`Affiche de ${title}`}
         className={styles.poster}
       />
+
       <div className={styles.details}>
-        <h1 className={styles.title}>{serie.name}</h1>
+        <h1 className={styles.title}>{title}</h1>
         <p className={styles.subtitle}>
-          Première diffusion :{" "}
-          {new Date(serie.first_air_date).toLocaleDateString("fr-FR")}
+          Première diffusion : {new Date(date).toLocaleDateString("fr-FR")}
         </p>
         <p className={styles.subtitle}>
           ⭐ {serie.vote_average.toFixed(1)} —{" "}
           {serie.genres.map((g) => g.name).join(", ")}
         </p>
-        <p className={styles.overview}>
-          {serie.overview?.trim()
-            ? serie.overview
-            : "Aucune description disponible pour cette série."}
-        </p>
+
+        <p className={styles.overview}>{description}</p>
 
         {trailerKey && (
           <div className={styles.trailer}>
@@ -94,18 +107,18 @@ export default function SerieDetail() {
               width="560"
               height="315"
               src={`https://www.youtube.com/embed/${trailerKey}`}
-              title="Bande-annonce"
+              title={`Bande-annonce de ${title}`}
               frameBorder="0"
               allowFullScreen
-            ></iframe>
+            />
           </div>
         )}
 
         <CastSection cast={cast} />
 
-        {providers.flatrate.length > 0 ||
-        providers.rent.length > 0 ||
-        providers.buy.length > 0 ? (
+        {providers.flatrate.length ||
+        providers.rent.length ||
+        providers.buy.length ? (
           <>
             <ProviderSection
               title="En streaming avec abonnement"
@@ -130,13 +143,7 @@ export default function SerieDetail() {
             <button
               key={n}
               className={`${styles.star} ${
-                hovered > 0
-                  ? n <= hovered
-                    ? styles.filled
-                    : ""
-                  : n <= rating
-                  ? styles.filled
-                  : ""
+                hovered >= n || rating >= n ? styles.filled : ""
               }`}
               onClick={() => handleRate(n)}
               onMouseEnter={() => setHovered(n)}
@@ -150,7 +157,7 @@ export default function SerieDetail() {
         <a href="/" className={styles.backButton}>
           <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <BiSolidLeftArrow style={{ fontSize: "1rem" }} />
-            <span>Retour</span>
+            Retour
           </span>
         </a>
       </div>

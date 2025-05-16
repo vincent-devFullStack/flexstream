@@ -2,25 +2,28 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
 if (!TMDB_API_KEY) {
-  throw new Error("TMDB_API_KEY manquante. Vérifie ton .env.local");
+  throw new Error("Clé API TMDb manquante. Vérifie ton .env.local !");
 }
 
-export async function fetchFromTMDB(endpoint, params = "") {
+async function fetchFromTMDB(endpoint, params = "") {
   const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}${params}`;
+
   const res = await fetch(url, {
-    next: { revalidate: 3600 }, // ou cache: "no-store"
+    next: { revalidate: 3600 }, // Met en cache pendant 1h pour limiter les appels
   });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error(`[TMDb] ${endpoint} : ${res.status}`, errorText);
-    throw new Error(`Erreur TMDb sur ${endpoint}`);
+    console.error(`[TMDb] Erreur sur ${endpoint} (${res.status})`, errorText);
+    throw new Error(
+      `Impossible de récupérer les données depuis TMDb (${endpoint})`
+    );
   }
 
   return res.json();
 }
 
-// Fonctions spécifiques
+// Films
 export async function getPopularMovies() {
   const data = await fetchFromTMDB("/movie/popular", "&language=fr-FR&page=1");
   return data.results;
@@ -35,10 +38,10 @@ export async function getTopRatedMovies() {
 }
 
 export async function getMovieDetails(id) {
-  const data = await fetchFromTMDB(`/movie/${id}`, "&language=fr-FR");
-  return data;
+  return fetchFromTMDB(`/movie/${id}`, "&language=fr-FR");
 }
 
+// Recherche
 export async function getSearchResults(query) {
   const data = await fetchFromTMDB(
     "/search/movie",
@@ -47,6 +50,7 @@ export async function getSearchResults(query) {
   return data.results;
 }
 
+// Séries
 export async function getPopularSeries() {
   const data = await fetchFromTMDB("/tv/popular", "&language=fr-FR&page=1");
   return data.results;
@@ -62,12 +66,16 @@ export async function getSerieDetails(id) {
 }
 
 export async function getWatchProviders(id, type = "movie") {
-  const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${TMDB_API_KEY}`;
+  const url = `${BASE_URL}/${type}/${id}/watch/providers?api_key=${TMDB_API_KEY}`;
   const res = await fetch(url);
 
   if (!res.ok) {
     const text = await res.text();
-    console.error(`Erreur TMDB (${url})`, res.status, text);
+    console.error(
+      `[TMDb] Fournisseurs indisponibles (${url})`,
+      res.status,
+      text
+    );
     return {};
   }
 
@@ -80,3 +88,25 @@ export async function getWatchProviders(id, type = "movie") {
     buy: results.buy || [],
   };
 }
+
+export async function getMovieVideos(id) {
+  const data = await fetchFromTMDB(`/movie/${id}/videos`, "&language=fr-FR");
+  return data.results;
+}
+
+export async function getSerieVideos(id) {
+  const data = await fetchFromTMDB(`/tv/${id}/videos`, "&language=fr-FR");
+  return data.results;
+}
+
+export async function getMovieCredits(id) {
+  const data = await fetchFromTMDB(`/movie/${id}/credits`, "&language=fr-FR");
+  return data.cast;
+}
+
+export async function getSerieCredits(id) {
+  const data = await fetchFromTMDB(`/tv/${id}/credits`, "&language=fr-FR");
+  return data.cast;
+}
+
+export { fetchFromTMDB };

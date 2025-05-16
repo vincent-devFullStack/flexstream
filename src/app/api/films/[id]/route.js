@@ -1,17 +1,25 @@
 import { getMovieDetails } from "@/lib/tmdb";
 
-export async function GET(request, context) {
+export const dynamic = "force-dynamic";
+
+export async function GET(_request, context) {
   const { id } = await context.params;
 
   if (!id) {
-    return Response.json({ error: "ID manquant" }, { status: 400 });
+    return new Response(
+      JSON.stringify({ error: "ID du film manquant dans l'URL" }),
+      { status: 400 }
+    );
   }
 
   try {
     const movie = await getMovieDetails(id);
-    return Response.json(movie);
-  } catch (error) {
-    console.error("Erreur API /films/[id] :", error);
-    return Response.json({ error: "Erreur serveur" }, { status: 500 });
+    return new Response(JSON.stringify(movie));
+  } catch (err) {
+    console.error(`[TMDB] Erreur chargement film ${id} :`, err);
+    return new Response(
+      JSON.stringify({ error: "Impossible de charger les détails du film" }),
+      { status: 500 }
+    );
   }
 }

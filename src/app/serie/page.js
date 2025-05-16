@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useCallback } from "react";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
@@ -8,12 +9,12 @@ export default function SeriesPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
+    const loadSeries = async () => {
       try {
         const res = await fetch("/api/series");
         const { popular, topRated } = await res.json();
 
-        const seriesGenres = {
+        const genreLabels = {
           35: "Comédie",
           18: "Drame",
           10759: "Action & Aventure",
@@ -27,16 +28,16 @@ export default function SeriesPage() {
           10763: "Actualités",
         };
 
-        const genreMap = {};
+        const groupedByGenre = {};
 
         [...popular, ...topRated].forEach((serie) => {
-          serie.genre_ids.forEach((genreId) => {
-            const genreName = seriesGenres[genreId];
-            if (!genreName) return;
+          serie.genre_ids.forEach((id) => {
+            const genre = genreLabels[id];
+            if (!genre) return;
 
-            if (!genreMap[genreName]) genreMap[genreName] = [];
+            if (!groupedByGenre[genre]) groupedByGenre[genre] = [];
 
-            genreMap[genreName].push({
+            groupedByGenre[genre].push({
               id: serie.id,
               title: serie.name,
               description: serie.overview || "Pas de description disponible",
@@ -48,32 +49,33 @@ export default function SeriesPage() {
           });
         });
 
-        const result = Object.entries(genreMap).map(([genre, movies]) => ({
-          genre,
-          movies,
-        }));
+        const structured = Object.entries(groupedByGenre).map(
+          ([genre, series]) => ({
+            genre,
+            movies: series,
+          })
+        );
 
-        console.log("✅ Séries catégorisées :", result); // 🔍 Ajouté
-
-        setCategories(result);
-      } catch (error) {
-        console.error("Erreur chargement séries :", error);
+        setCategories(structured);
+      } catch (err) {
+        console.error("[Series] Erreur de chargement :", err);
       }
-    }
+    };
 
-    fetchData();
+    loadSeries();
   }, []);
 
-  const scrollRow = useCallback((genre, scrollAmount) => {
+  const scrollGenreRow = useCallback((genre, offset) => {
     const row = document.getElementById(`row-${genre}`);
     if (row) {
-      row.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      row.scrollBy({ left: offset, behavior: "smooth" });
     }
   }, []);
 
   return (
     <>
       <Navbar />
+
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.headerTitle}>Ma sélection de séries</h1>
@@ -95,28 +97,20 @@ export default function SeriesPage() {
               <div className={styles.movieRowWrapper}>
                 <button
                   className={styles.scrollButton}
-                  onClick={() => scrollRow(genre, -300)}
+                  onClick={() => scrollGenreRow(genre, -300)}
+                  aria-label={`Faire défiler les séries ${genre} vers la gauche`}
                 >
                   ◀
                 </button>
                 <div className={styles.movieRow} id={`row-${genre}`}>
-                  {movies.map((serie) => {
-                    console.log("🎬 Série envoyée à Movie :", {
-                      ...serie,
-                      type: "serie",
-                    });
-                    return (
-                      <Movie
-                        key={`serie-${serie.id}`}
-                        {...serie}
-                        type="serie" // ✅ bien passé ici
-                      />
-                    );
-                  })}
+                  {movies.map((serie) => (
+                    <Movie key={`serie-${serie.id}`} {...serie} type="serie" />
+                  ))}
                 </div>
                 <button
                   className={styles.scrollButton}
-                  onClick={() => scrollRow(genre, 300)}
+                  onClick={() => scrollGenreRow(genre, 300)}
+                  aria-label={`Faire défiler les séries ${genre} vers la droite`}
                 >
                   ▶
                 </button>
@@ -125,8 +119,9 @@ export default function SeriesPage() {
           ))
         )}
       </main>
+
       <footer className={styles.footer}>
-        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
+        <p>© 2025 FlexStream par Vincent Silvestri. Tous droits réservés.</p>
       </footer>
     </>
   );

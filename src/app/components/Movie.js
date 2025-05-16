@@ -9,20 +9,18 @@ export default function Movie({
   description,
   image,
   rating,
-  type = "film", // Par défaut : film
+  type = "film", // "tv" si besoin
 }) {
   const ref = useRef();
   const [isVisible, setIsVisible] = useState(false);
 
-  // Description propre + raccourcie
   const maxLength = 100;
-  const cleanDescription = description || "Pas de description disponible";
-  const shortDescription =
-    cleanDescription.length > maxLength
-      ? cleanDescription.slice(0, maxLength) + "…"
-      : cleanDescription;
+  const fallbackText = "Pas de description disponible.";
+  const trimmedDescription =
+    description && description.length > maxLength
+      ? `${description.slice(0, maxLength)}…`
+      : description || fallbackText;
 
-  // Animation apparition
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
@@ -34,19 +32,31 @@ export default function Movie({
   }, []);
 
   return (
-    <Link href={`/${type}/${id}`} className={styles.cardLink}>
+    <Link
+      href={`/${type}/${id}`}
+      className={styles.cardLink}
+      aria-label={`Voir la fiche de ${title}`}
+    >
       <div className={styles.vignetteWrapper}>
         <div
           ref={ref}
           className={`${styles.vignette} ${isVisible ? styles.visible : ""}`}
         >
-          {image && <img src={image} alt={title} className={styles.poster} />}
-          <h2>{title}</h2>
+          {image && (
+            <img
+              src={image}
+              alt={`Affiche de ${title}`}
+              className={styles.poster}
+            />
+          )}
+
+          <h2 className={styles.title}>{title}</h2>
+
           {typeof rating === "number" && (
             <p className={styles.rating}>⭐ {rating.toFixed(1)}</p>
           )}
 
-          <p>{shortDescription}</p>
+          <p className={styles.description}>{trimmedDescription}</p>
         </div>
       </div>
     </Link>

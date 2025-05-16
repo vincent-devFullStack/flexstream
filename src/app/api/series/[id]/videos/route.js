@@ -1,7 +1,7 @@
-import { fetchFromTMDB } from "@/lib/tmdb";
+import { getSerieVideos } from "@/lib/tmdb";
 
 export async function GET(_request, context) {
-  const { id } = await context.params; // ✅ pour éviter le warning
+  const { id } = await context.params;
 
   if (!id) {
     return new Response(JSON.stringify({ error: "ID manquant" }), {
@@ -10,10 +10,10 @@ export async function GET(_request, context) {
   }
 
   try {
-    const data = await fetchFromTMDB(`/tv/${id}/videos`, "&language=fr-FR");
-    return new Response(JSON.stringify(data));
+    const data = await getSerieVideos(id);
+    return new Response(JSON.stringify({ results: data }));
   } catch (err) {
-    console.error("Erreur getVideos série:", err);
+    console.error("Erreur getSerieVideos :", err);
     return new Response(
       JSON.stringify({ error: "Erreur lors de la récupération des vidéos" }),
       { status: 500 }

@@ -1,22 +1,35 @@
 import { getSerieDetails } from "@/lib/tmdb";
 
 export async function GET(_request, context) {
-  const { id } = await context.params; // ✅ nécessaire pour éviter le warning Next.js
+  const { id } = await context.params;
 
   if (!id) {
-    return Response.json({ error: "ID manquant" }, { status: 400 });
+    return new Response(
+      JSON.stringify({ error: "ID de la série manquant dans l'URL" }),
+      { status: 400 }
+    );
   }
 
   try {
     const serie = await getSerieDetails(id);
 
     if (!serie) {
-      return Response.json({ error: "Série introuvable" }, { status: 404 });
+      return new Response(JSON.stringify({ error: "Série introuvable" }), {
+        status: 404,
+      });
     }
 
-    return Response.json(serie);
-  } catch (error) {
-    console.error("Erreur API /series/[id] :", error);
-    return Response.json({ error: "Erreur serveur" }, { status: 500 });
+    return new Response(JSON.stringify(serie), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error(`[TMDB] Erreur chargement série ${id} :`, err);
+    return new Response(
+      JSON.stringify({
+        error: "Impossible de récupérer les détails de la série",
+      }),
+      { status: 500 }
+    );
   }
 }

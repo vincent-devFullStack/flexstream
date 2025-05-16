@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useCallback } from "react";
 import styles from "../page.module.css";
 import Navbar from "../components/Navbar";
@@ -8,12 +9,12 @@ export default function FilmPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
+    const loadMovies = async () => {
       try {
         const res = await fetch("/api/films");
-        const { popular, topRated } = await res.json(); // ✅ destructure bien
+        const { popular, topRated } = await res.json();
 
-        const genreNames = {
+        const genreLabels = {
           28: "Action",
           12: "Aventure",
           16: "Animation",
@@ -35,16 +36,16 @@ export default function FilmPage() {
           37: "Western",
         };
 
-        const genreMap = {};
+        const groupedByGenre = {};
 
         [...popular, ...topRated].forEach((movie) => {
           movie.genre_ids.forEach((id) => {
-            const genre = genreNames[id];
+            const genre = genreLabels[id];
             if (!genre) return;
 
-            if (!genreMap[genre]) genreMap[genre] = [];
+            if (!groupedByGenre[genre]) groupedByGenre[genre] = [];
 
-            genreMap[genre].push({
+            groupedByGenre[genre].push({
               id: movie.id,
               title: movie.title,
               description: movie.overview || "Pas de description disponible",
@@ -56,35 +57,38 @@ export default function FilmPage() {
           });
         });
 
-        const result = Object.entries(genreMap).map(([genre, movies]) => ({
-          genre,
-          movies,
-        }));
+        const structuredData = Object.entries(groupedByGenre).map(
+          ([genre, movies]) => ({
+            genre,
+            movies,
+          })
+        );
 
-        setCategories(result);
-      } catch (error) {
-        console.error("Erreur chargement films :", error);
+        setCategories(structuredData);
+      } catch (err) {
+        console.error("Erreur lors du chargement des films :", err);
       }
-    }
+    };
 
-    fetchData();
+    loadMovies();
   }, []);
 
-  const scrollRow = useCallback((genre, scrollAmount) => {
+  const scrollGenreRow = useCallback((genre, offset) => {
     const row = document.getElementById(`row-${genre}`);
     if (row) {
-      row.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      row.scrollBy({ left: offset, behavior: "smooth" });
     }
   }, []);
 
   return (
     <>
       <Navbar />
+
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.headerTitle}>Ma sélection de films</h1>
           <p className={styles.headerDescription}>
-            Découvrez mes coups de cœur par genre.
+            Découvrez mes coups de cœur classés par genre.
           </p>
         </div>
       </header>
@@ -93,21 +97,26 @@ export default function FilmPage() {
         {categories.map(({ genre, movies }) => (
           <section key={genre}>
             <h2 className={styles.sectionTitle}>{genre}</h2>
+
             <div className={styles.movieRowWrapper}>
               <button
                 className={styles.scrollButton}
-                onClick={() => scrollRow(genre, -300)}
+                onClick={() => scrollGenreRow(genre, -300)}
+                aria-label={`Faire défiler les films ${genre} vers la gauche`}
               >
                 ◀
               </button>
+
               <div className={styles.movieRow} id={`row-${genre}`}>
                 {movies.map((movie) => (
                   <Movie key={`movie-${movie.id}`} {...movie} type="film" />
                 ))}
               </div>
+
               <button
                 className={styles.scrollButton}
-                onClick={() => scrollRow(genre, 300)}
+                onClick={() => scrollGenreRow(genre, 300)}
+                aria-label={`Faire défiler les films ${genre} vers la droite`}
               >
                 ▶
               </button>
@@ -117,7 +126,7 @@ export default function FilmPage() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
+        <p>© 2025 FlexStream par Vincent Silvestri. Tous droits réservés.</p>
       </footer>
     </>
   );
