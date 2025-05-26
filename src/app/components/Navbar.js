@@ -3,14 +3,19 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
+import { jwtDecode } from "jwt-decode";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
   const searchRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
@@ -23,6 +28,32 @@ export default function Navbar() {
   };
 
   const isActive = (path) => (pathname === path ? styles.active : "");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const userTag = `user#${decoded.userId.slice(-4)}`;
+        setUser({ ...decoded, tag: userTag });
+      } catch (err) {
+        console.error("Token invalide");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -173,33 +204,91 @@ export default function Navbar() {
         >
           Accueil
         </Link>
-        <Link
-          href="/film"
-          className={isActive("/film")}
-          onClick={() => setMenuOpen(false)}
-        >
-          Films
-        </Link>
-        <Link
-          href="/serie"
-          className={isActive("/series")}
-          onClick={() => setMenuOpen(false)}
-        >
-          Séries
-        </Link>
-        <Link
-          href="/login"
-          className={`${styles.mobileSignIn} ${styles.mobileOnly}`}
-          onClick={() => setMenuOpen(false)}
-        >
-          Connexion
-        </Link>
+
+        {user && (
+          <>
+            <Link
+              href="/film"
+              className={isActive("/film")}
+              onClick={() => setMenuOpen(false)}
+            >
+              Films
+            </Link>
+            <Link
+              href="/serie"
+              className={isActive("/series")}
+              onClick={() => setMenuOpen(false)}
+            >
+              Séries
+            </Link>
+            <Link href="/profil" onClick={() => setMenuOpen(false)}>
+              Mon profil
+            </Link>
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                setUser(null);
+                setMenuOpen(false);
+                router.push("/");
+              }}
+              className={styles.mobileButton}
+            >
+              Se déconnecter
+            </button>
+          </>
+        )}
+
+        {!user && (
+          <Link
+            href="/login"
+            className={`${styles.mobileSignIn} ${styles.mobileOnly}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            Connexion
+          </Link>
+        )}
       </div>
 
-      <div className={`${styles.userActions} ${styles.desktopOnly}`}>
-        <Link href="/login" className={styles.signIn}>
-          Connexion
-        </Link>
+      <div
+        className={`${styles.userActions} ${styles.desktopOnly}`}
+        ref={dropdownRef}
+      >
+        {user ? (
+          <div className={styles.userWrapper}>
+            <div
+              className={styles.userProfile}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <div className={styles.avatarCircle}>
+                {user.email?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <span className={styles.userTag}>{user.tag}</span>
+            </div>
+
+            {showDropdown && (
+              <div className={styles.dropdown}>
+                <Link href="/profil" className={styles.dropdownItem}>
+                  Mon profil
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setUser(null);
+                    setShowDropdown(false);
+                    router.push("/");
+                  }}
+                  className={styles.dropdownItem}
+                >
+                  Se déconnecter
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link href="/login" className={styles.signIn}>
+            Connexion
+          </Link>
+        )}
       </div>
 
       <button
