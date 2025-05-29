@@ -21,9 +21,23 @@
   flex-wrap: wrap;
 }
 
-.logo {
+.logoText {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: 1px;
   display: flex;
   align-items: center;
+  gap: 0.2rem;
+  padding-right: 10px;
+}
+
+.flex {
+  color: white;
+}
+
+.stream {
+  color: #ffc800;
 }
 
 .searchBar {

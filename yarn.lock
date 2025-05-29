@@ -9,6 +9,11 @@
   dependencies:
     tslib "^2.4.0"
 
+"@fontsource/bebas-neue@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.npmjs.org/@fontsource/bebas-neue/-/bebas-neue-5.2.5.tgz#b9eadc26df45aa1b27d9ef22eb2b898544b3dba6"
+  integrity sha512-9hZCl9BpuwrIPRgprS17WRHMRyqprFKxNEDOl98en9XzikR8GGXpeiLaKf5HpNm1NKnVo/EowTjcgcgrvW3h0w==
+
 "@img/sharp-darwin-arm64@0.34.1":
   version "0.34.1"
   resolved "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.34.1.tgz"

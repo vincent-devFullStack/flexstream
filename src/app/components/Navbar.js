@@ -127,12 +127,10 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.logo} aria-label="Accueil Flexstream">
-        <img
-          src="/flexstream.svg"
-          alt="Logo Flexstream"
-          width={120}
-          height={30}
-        />
+        <span className={styles.logoText}>
+          <span className={styles.flex}>Flex</span>
+          <span className={styles.stream}>stream</span>
+        </span>
       </Link>
 
       <form

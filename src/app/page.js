@@ -43,12 +43,15 @@ export default async function Home() {
       <header className={styles.header}>
         <Carousel items={carouselItems} autoPlay={true} delay={4000} />
         <div className={styles.headerContent}>
-          <h1 className={styles.headerTitle}>FlexStream</h1>
+          <h1 className={styles.headerTitle}>
+            <span className={styles.flex}>Flex</span>
+            <span className={styles.stream}>Stream</span>
+          </h1>
           <p className={styles.headerDescription}>
-            À la recherche de quelque chose à regarder ? FlexStream vous propose
-            des films et séries disponibles gratuitement, sans engagement.
-            Profitez d’une expérience simple et rapide pour découvrir du
-            contenu.
+            Explorez des centaines de films et séries, découvrez sur quelles
+            plateformes ils sont disponibles, et gérez votre propre liste de
+            favoris. FlexStream, c’est votre guide pour ne plus jamais passer à
+            côté d’un bon moment.
           </p>
         </div>
       </header>

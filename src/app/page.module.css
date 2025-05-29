@@ -1,7 +1,7 @@
 .page {
   width: 100%;
   min-height: 100vh;
-  padding: 80px 64px 80px 64px;
+  padding: 80px 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,30 +38,53 @@
   z-index: 2;
   color: white;
   text-align: center;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   background: rgba(0, 0, 0, 0.5);
-  border-radius: 8px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 70%;
 }
 
 .headerTitle {
-  font-size: 3.5rem;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: #f74366;
-  font-weight: bold;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 3rem;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flex {
+  color: white;
+}
+
+.stream {
+  color: #ffc800;
 }
 
 .headerDescription {
   font-size: 1.1rem;
-  color: #ffffff;
+  color: #f1f1f1;
   margin-top: 1rem;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 400;
   line-height: 1.5;
   text-align: center;
   padding: 0 1rem;
-
-  max-width: 90vw;
-  width: 100%;
+  max-width: 650px;
   margin-inline: auto;
   word-spacing: normal;
   hyphens: auto;
@@ -100,9 +123,9 @@
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
-  width: 90vw; /* prend toute la largeur de l’écran */
-  padding: 0 2rem; /* léger padding gauche/droite */
-  box-sizing: border-box; /* inclut le padding dans la largeur */
+  width: 90vw;
+  padding: 0 2rem;
+  box-sizing: border-box;
 }
 
 .scrollButton {
@@ -116,14 +139,19 @@
   cursor: pointer;
   padding: 0.5rem;
   z-index: 10;
+  transition: transform 0.2s ease;
 }
 
 .scrollButton:first-of-type {
-  left: -2rem; /* place hors de la ligne */
+  left: 1rem;
 }
 
 .scrollButton:last-of-type {
-  right: -2rem; /* place hors de la ligne */
+  right: 1rem;
+}
+
+.scrollButton:hover {
+  transform: translateY(-50%) scale(1.2);
 }
 
 .movieRow {
@@ -141,31 +169,6 @@
   display: none;
 }
 
-.scrollButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  z-index: 10;
-}
-.scrollButton:first-of-type {
-  left: 1rem; /* ajusté avec le même padding que le wrapper */
-}
-
-.scrollButton:last-of-type {
-  right: 1rem;
-}
-
-.scrollButton:hover {
-  transform: translateY(-50%) scale(1.2);
-  transition: transform 0.2s ease;
-}
-
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -180,21 +183,29 @@
     padding: 64px 16px 80px 16px;
     gap: 32px;
   }
+
+  .headerTitle {
+    font-size: 2.5rem;
+  }
+
+  .headerContent {
+    padding: 1rem 1.5rem;
+    width: 70%;
+  }
 }
 
 @media (max-width: 480px) {
   .headerDescription {
     font-size: 1rem;
-    line-height: 1.2;
+    line-height: 1.4;
     padding: 0 0.5rem;
   }
+
   .headerTitle {
     font-size: 2rem;
   }
+
   .headerContent {
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    padding: 1rem 1.5rem;
-    width: 70vw;
+    width: 85%;
   }
 }
