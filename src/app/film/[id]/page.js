@@ -6,6 +6,7 @@ import ProviderSection from "../../components/ProviderSection";
 import CastSection from "../../components/CastSection";
 import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
+import { jwtDecode } from "jwt-decode";
 
 export default function FilmDetail() {
   const { id } = useParams();
@@ -23,20 +24,19 @@ export default function FilmDetail() {
     buy: [],
   });
   const [cast, setCast] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (!id) return;
 
     async function loadMediaDetails() {
       try {
-        // Détails
         const res = await fetch(
           `/api/${type === "tv" ? "series" : "films"}/${id}`
         );
         const data = await res.json();
         setMedia(data);
 
-        // Trailer
         const videoRes = await fetch(
           `/api/${type === "tv" ? "series" : "films"}/${id}/videos`
         );
@@ -46,17 +46,14 @@ export default function FilmDetail() {
         );
         if (trailer) setTrailerKey(trailer.key);
 
-        // Plateformes
         const provRes = await fetch(`/api/providers/${type}/${id}`);
         const provData = await provRes.json();
         setProviders(provData);
 
-        // Casting
         const castRes = await fetch(`/api/credits/${type}/${id}`);
         const castData = await castRes.json();
         setCast(Array.isArray(castData.cast) ? castData.cast.slice(0, 10) : []);
 
-        // Note locale
         const savedRating = localStorage.getItem(`rating-${id}`);
         if (savedRating) setRating(parseInt(savedRating));
       } catch (err) {
@@ -66,6 +63,18 @@ export default function FilmDetail() {
 
     loadMediaDetails();
   }, [id, type]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (err) {
+        console.error("Token invalide");
+      }
+    }
+  }, []);
 
   const handleRate = (value) => {
     setRating(value);
@@ -138,7 +147,13 @@ export default function FilmDetail() {
         )}
 
         <div className={styles.actions}>
-          <button className={styles.addButton}>+ Ajouter à ma liste</button>
+          <button
+            className={styles.addButton}
+            disabled={!user}
+            title={!user ? "Connectez-vous pour utiliser cette fonction" : ""}
+          >
+            + Ajouter à ma liste
+          </button>
         </div>
 
         <div className={styles.rating}>
@@ -149,9 +164,11 @@ export default function FilmDetail() {
               className={`${styles.star} ${
                 hovered >= n || rating >= n ? styles.filled : ""
               }`}
-              onClick={() => handleRate(n)}
-              onMouseEnter={() => setHovered(n)}
-              onMouseLeave={() => setHovered(0)}
+              onClick={() => user && handleRate(n)}
+              onMouseEnter={() => user && setHovered(n)}
+              onMouseLeave={() => user && setHovered(0)}
+              disabled={!user}
+              title={!user ? "Connectez-vous pour noter" : ""}
             >
               ★
             </button>

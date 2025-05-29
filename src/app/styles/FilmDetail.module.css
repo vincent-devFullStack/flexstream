@@ -88,11 +88,19 @@
   background-color: #ffc940;
 }
 
+.addButton:disabled,
+.star:disabled {
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.6;
+}
+
 .rating {
   margin-top: 2rem;
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .rateLabel {
@@ -105,18 +113,17 @@
   border: none;
   cursor: pointer;
   color: gray;
-  transition: color 0.2s;
-  padding: 0 4px;
+  transition: color 0.2s, transform 0.2s;
+  padding: 0;
+  margin: 0 4px;
 }
 
 .filled {
   color: gold;
 }
 
-.star:hover,
-.star:focus,
-.star:hover,
-.star:focus {
+.star:hover:not(:disabled),
+.star:focus:not(:disabled) {
   transform: scale(1.2);
 }
 
@@ -128,6 +135,7 @@
   background: #111;
   animation: fadeIn 0.5s ease-in-out;
 }
+
 .trailer h3 {
   text-align: center;
   margin-top: 0.5rem;
@@ -163,12 +171,13 @@
   }
 
   .rating {
-    flex-wrap: nowrap;
     justify-content: center;
   }
+
   .star {
     font-size: 18px;
   }
+
   .rateLabel {
     font-size: 15px;
   }
