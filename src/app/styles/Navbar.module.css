@@ -133,23 +133,31 @@
 /* Navigation links */
 .navLinks {
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  margin-left: 10px;
+  margin-right: auto;
   align-items: center;
   min-width: 180px;
   flex-direction: row;
 }
 
-.navLinks a {
-  text-decoration: none;
+.navLinks a,
+.navLinks button {
+  font-size: 14px;
+  font-weight: 600;
   color: white;
-  font-weight: 500;
-  font-size: 16px;
-  transition: color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+  padding: 3px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.navLinks a:hover {
-  color: #ebaf00;
-  transform: translateY(-2px);
+.navLinks a:hover,
+.navLinks button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .navLinks a.active {
@@ -295,15 +303,31 @@
   .navLinks {
     display: none;
     flex-direction: column;
-    background-color: #1a1a1ab0;
+    background: rgba(26, 26, 26, 0.85);
     position: absolute;
     top: 60px;
     left: 0;
     right: 0;
-    padding: 20px;
+    padding: 24px 16px;
     text-align: center;
-    gap: 16px;
+    gap: 20px;
     z-index: 999;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    animation: fadeSlideDown 0.3s ease;
+  }
+
+  @keyframes fadeSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .navLinks.showMenu {
@@ -320,7 +344,10 @@
   }
 
   .userActions {
-    display: none;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .mobileOnly {

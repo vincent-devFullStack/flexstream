@@ -221,6 +221,22 @@ export default function Navbar() {
             >
               Séries
             </Link>
+            <div className={styles.mobileOnly}>
+              <Link href="/profil" onClick={() => setMenuOpen(false)}>
+                Mon profil
+              </Link>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  setUser(null);
+                  setMenuOpen(false);
+                  router.push("/");
+                }}
+                className={styles.mobileButton}
+              >
+                Se déconnecter
+              </button>
+            </div>
           </>
         )}
 
