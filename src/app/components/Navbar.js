@@ -200,6 +200,15 @@ export default function Navbar() {
               <Link href="/serie" className={isActive("/serie")}>
                 Séries
               </Link>
+              {menuOpen && (
+                <div
+                  className={`${styles.navLinksSection} ${styles.mobileOnly}`}
+                >
+                  <Link href="/profil" className={styles.dropdownItem}>
+                    Mon profil
+                  </Link>
+                </div>
+              )}
             </>
           )}
           {!user && menuOpen && (
