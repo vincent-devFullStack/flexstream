@@ -13,6 +13,7 @@ export default function Navbar() {
   const [avatar, setAvatar] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -26,6 +27,7 @@ export default function Navbar() {
     setUser(null);
     setAvatar(null);
     setShowDropdown(false);
+    setMenuOpen(false);
     router.push("/");
   };
 
@@ -127,77 +129,131 @@ export default function Navbar() {
         </span>
       </Link>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (search.trim()) {
-            router.push(
-              `/recherche?query=${encodeURIComponent(search.trim())}`
-            );
-            setSuggestions([]);
-          }
-        }}
-        className={styles.searchBar}
-        ref={searchRef}
+      <button
+        className={`${styles.burger} ${menuOpen ? styles.active : ""}`}
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Menu"
       >
-        <input
-          type="text"
-          placeholder="Rechercher un film ou une série..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button type="submit" className={styles.searchButton}>
-          🔍
-        </button>
+        <span></span>
+      </button>
 
-        {suggestions.length > 0 && (
-          <ul className={styles.suggestions}>
-            {suggestions.map((item) => (
-              <li key={`${item.type}-${item.id}`}>
-                <Link
-                  href={`/${item.type === "tv" ? "serie" : "film"}/${item.id}`}
-                  onClick={() => setSuggestions([])}
-                >
-                  <img
-                    src={
-                      item.poster_path
-                        ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-                        : "/placeholder.jpg"
-                    }
-                    alt=""
-                  />
-                  <div>
-                    <span>{item.title}</span>
-                    <span>⭐ {item.vote_average?.toFixed(1)}</span>
-                    <span>{item.type === "tv" ? "📺 Série" : "🎬 Film"}</span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </form>
+      <div
+        className={`${styles.navLinksWrapper} ${menuOpen ? styles.open : ""}`}
+      >
+        <div className={`${styles.navLinks} ${menuOpen ? styles.open : ""}`}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (search.trim()) {
+                router.push(
+                  `/recherche?query=${encodeURIComponent(search.trim())}`
+                );
+                setSuggestions([]);
+                setMenuOpen(false);
+              }
+            }}
+            className={styles.searchBar}
+            ref={searchRef}
+          >
+            <input
+              type="text"
+              placeholder="Rechercher un film ou une série..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button type="submit" className={styles.searchButton}>
+              🔍
+            </button>
+            {suggestions.length > 0 && (
+              <ul className={styles.suggestions}>
+                {suggestions.map((item) => (
+                  <li key={`${item.type}-${item.id}`}>
+                    <Link
+                      href={`/${item.type === "tv" ? "serie" : "film"}/${
+                        item.id
+                      }`}
+                      onClick={() => {
+                        setSuggestions([]);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <img
+                        src={
+                          item.poster_path
+                            ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+                            : "/placeholder.jpg"
+                        }
+                        alt=""
+                      />
+                      <div>
+                        <span>{item.title}</span>
+                        <span>⭐ {item.vote_average?.toFixed(1)}</span>
+                        <span>
+                          {item.type === "tv" ? "📺 Série" : "🎬 Film"}
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </form>
 
-      <div className={styles.navLinksWrapper}>
-        <div className={styles.navLinks}>
-          <Link href="/" className={isActive("/")}>
+          <Link
+            href="/"
+            className={isActive("/")}
+            onClick={() => setMenuOpen(false)}
+          >
             Accueil
           </Link>
           {user && (
             <>
-              <Link href="/film" className={isActive("/film")}>
+              <Link
+                href="/film"
+                className={isActive("/film")}
+                onClick={() => setMenuOpen(false)}
+              >
                 Films
               </Link>
-              <Link href="/serie" className={isActive("/serie")}>
+              <Link
+                href="/serie"
+                className={isActive("/serie")}
+                onClick={() => setMenuOpen(false)}
+              >
                 Séries
               </Link>
+              <div className={`${styles.navLinksSection} ${styles.mobileOnly}`}>
+                <Link
+                  href="/profil"
+                  className={styles.dropdownItem}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Mon profil
+                </Link>
+                <button onClick={logout} className={styles.dropdownItem}>
+                  Se déconnecter
+                </button>
+              </div>
             </>
+          )}
+          {!user && (
+            <div className={styles.navLinksSection}>
+              <button
+                className={styles.signIn}
+                onClick={() => {
+                  setShowAuthModal(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Connexion
+              </button>
+            </div>
           )}
         </div>
       </div>
 
-      <div className={styles.userActions} ref={dropdownRef}>
-        {user ? (
+      {user && (
+        <div className={styles.userActions} ref={dropdownRef}>
           <div
             className={styles.userWrapper}
             onClick={() => setShowDropdown(!showDropdown)}
@@ -223,15 +279,8 @@ export default function Navbar() {
               </div>
             )}
           </div>
-        ) : (
-          <button
-            className={styles.signIn}
-            onClick={() => setShowAuthModal(true)}
-          >
-            Connexion
-          </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </nav>
