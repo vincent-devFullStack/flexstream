@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "../styles/Navbar.module.css";
 import { jwtDecode } from "jwt-decode";
+import AuthModal from "./AuthModal"; // à créer séparément
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
@@ -11,6 +12,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -231,7 +233,6 @@ export default function Navbar() {
               >
                 Mon profil
               </Link>
-
               <button onClick={logout} className={styles.logoutMobile}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -246,13 +247,15 @@ export default function Navbar() {
           </>
         )}
         {!user && (
-          <Link
-            href="/login"
+          <button
             className={`${styles.mobileSignIn} ${styles.mobileOnly}`}
-            onClick={() => setMenuOpen(false)}
+            onClick={() => {
+              setMenuOpen(false);
+              setShowAuthModal(true);
+            }}
           >
             Connexion
-          </Link>
+          </button>
         )}
       </div>
 
@@ -284,9 +287,12 @@ export default function Navbar() {
             )}
           </div>
         ) : (
-          <Link href="/login" className={styles.signIn}>
+          <button
+            className={styles.signIn}
+            onClick={() => setShowAuthModal(true)}
+          >
             Connexion
-          </Link>
+          </button>
         )}
       </div>
 
@@ -297,6 +303,8 @@ export default function Navbar() {
       >
         ☰
       </button>
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </nav>
   );
 }
