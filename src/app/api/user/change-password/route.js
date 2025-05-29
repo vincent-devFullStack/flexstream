@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { connectToDB } from "@/lib/db";
 import User from "@/lib/models/User";
 
-export async function GET(req) {
+export async function POST(req) {
   await connectToDB();
 
   const token = req.headers.get("token");
@@ -13,8 +14,16 @@ export async function GET(req) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).lean(); // lean() pour retourner un objet simple
+    const { newPassword } = await req.json();
 
+    if (!newPassword || newPassword.length < 6) {
+      return NextResponse.json(
+        { error: "Mot de passe trop court" },
+        { status: 400 }
+      );
+    }
+
+    const user = await User.findById(decoded.userId);
     if (!user) {
       return NextResponse.json(
         { error: "Utilisateur introuvable" },
@@ -22,14 +31,12 @@ export async function GET(req) {
       );
     }
 
-    return NextResponse.json({
-      movies: user.movies || [],
-      series: user.series || [],
-      avatar: user.avatar || null, // ✅ ajout ici
-      email: user.email, // optionnel si tu veux l'afficher
-    });
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Erreur API /user/profile :", err);
+    console.error("Erreur API change-password:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

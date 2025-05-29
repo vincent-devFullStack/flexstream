@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fontsource/bebas-neue": "^5.2.5",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",

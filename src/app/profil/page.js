@@ -1,38 +1,102 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../styles/Profil.module.css";
 
 export default function ProfilPage() {
   const router = useRouter();
-
   const [avatar, setAvatar] = useState("/default-avatar.png");
   const [newPassword, setNewPassword] = useState("");
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("/api/user/profile", {
+      headers: { token },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.avatar) {
+          setAvatar(data.avatar);
+        }
+      });
+  }, []);
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAvatar(url);
-      // TODO: Upload vers le serveur si nécessaire
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      setAvatar(base64);
+
+      const res = await fetch("/api/user/upload-avatar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ avatar: base64 }),
+      });
+
+      if (!res.ok) {
+        alert("Erreur lors du changement d'avatar");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePasswordUpdate = async () => {
+    const token = localStorage.getItem("token");
+    if (!newPassword || newPassword.length < 6) {
+      alert("Mot de passe trop court (min 6 caractères)");
+      return;
+    }
+
+    const res = await fetch("/api/user/change-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token,
+      },
+      body: JSON.stringify({ newPassword }),
+    });
+
+    if (res.ok) {
+      alert("Mot de passe mis à jour !");
+      setNewPassword("");
+    } else {
+      alert("Erreur lors de la mise à jour.");
     }
   };
 
-  const handlePasswordUpdate = () => {
-    // TODO: appel à une route API pour modifier le mot de passe
-    alert("Mot de passe mis à jour !");
-  };
-
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
       "Supprimer définitivement le compte ?"
     );
-    if (confirmDelete) {
-      // TODO: appel API pour supprimer le compte
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("/api/user/delete", {
+      method: "DELETE",
+      headers: { token },
+    });
+
+    if (res.ok) {
       localStorage.removeItem("token");
       router.push("/");
+    } else {
+      alert("Erreur lors de la suppression du compte.");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/");
   };
 
   return (
@@ -64,6 +128,9 @@ export default function ProfilPage() {
           className={styles.secondaryButton}
         >
           Retour à l'accueil
+        </button>
+        <button onClick={handleLogout} className={styles.secondaryButton}>
+          Déconnexion
         </button>
         <button onClick={handleDeleteAccount} className={styles.deleteButton}>
           Supprimer mon compte

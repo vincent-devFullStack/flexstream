@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { connectToDB } from "@/lib/db";
 import User from "@/lib/models/User";
 
-export async function GET(req) {
+export async function POST(req) {
   await connectToDB();
 
   const token = req.headers.get("token");
@@ -13,7 +13,7 @@ export async function GET(req) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).lean(); // lean() pour retourner un objet simple
+    const user = await User.findById(decoded.userId);
 
     if (!user) {
       return NextResponse.json(
@@ -22,14 +22,13 @@ export async function GET(req) {
       );
     }
 
-    return NextResponse.json({
-      movies: user.movies || [],
-      series: user.series || [],
-      avatar: user.avatar || null, // ✅ ajout ici
-      email: user.email, // optionnel si tu veux l'afficher
-    });
+    const { avatar } = await req.json(); // avatar est une string base64
+    user.avatar = avatar;
+    await user.save();
+
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Erreur API /user/profile :", err);
+    console.error("Erreur avatar upload :", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
