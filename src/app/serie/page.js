@@ -9,60 +9,51 @@ export default function SeriesPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const loadSeries = async () => {
+    const loadUserSeries = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       try {
-        const res = await fetch("/api/series");
-        const { popular, topRated } = await res.json();
+        const res = await fetch("/api/user/profile", {
+          headers: { token },
+        });
 
-        const genreLabels = {
-          35: "Comédie",
-          18: "Drame",
-          10759: "Action & Aventure",
-          10765: "Science-Fiction",
-          10766: "Soap",
-          10764: "Téléréalité",
-          80: "Policier",
-          9648: "Mystère",
-          10751: "Familial",
-          10767: "Talk-show",
-          10763: "Actualités",
-        };
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erreur serveur");
 
-        const groupedByGenre = {};
+        const userSeries = data.series || [];
 
-        [...popular, ...topRated].forEach((serie) => {
-          serie.genre_ids.forEach((id) => {
-            const genre = genreLabels[id];
-            if (!genre) return;
+        // 🔁 Regrouper par genre
+        const grouped = {};
 
-            if (!groupedByGenre[genre]) groupedByGenre[genre] = [];
+        userSeries.forEach((serie) => {
+          (serie.genres || []).forEach((genre) => {
+            if (!grouped[genre]) grouped[genre] = [];
 
-            groupedByGenre[genre].push({
-              id: serie.id,
-              title: serie.name,
-              description: serie.overview || "Pas de description disponible",
-              image: serie.poster_path
-                ? `https://image.tmdb.org/t/p/w500${serie.poster_path}`
+            grouped[genre].push({
+              id: serie.tmdbId,
+              title: serie.title,
+              image: serie.posterPath
+                ? `https://image.tmdb.org/t/p/w500${serie.posterPath}`
                 : "/placeholder.jpg",
-              rating: serie.vote_average,
+              rating: serie.note,
+              description: "",
             });
           });
         });
 
-        const structured = Object.entries(groupedByGenre).map(
-          ([genre, series]) => ({
-            genre,
-            movies: series,
-          })
-        );
+        const result = Object.entries(grouped).map(([genre, series]) => ({
+          genre,
+          movies: series, // on garde le même nom que pour Movie component
+        }));
 
-        setCategories(structured);
+        setCategories(result);
       } catch (err) {
         console.error("[Series] Erreur de chargement :", err);
       }
     };
 
-    loadSeries();
+    loadUserSeries();
   }, []);
 
   const scrollGenreRow = useCallback((genre, offset) => {
@@ -80,7 +71,7 @@ export default function SeriesPage() {
         <div className={styles.headerContent}>
           <h1 className={styles.headerTitle}>Ma sélection de séries</h1>
           <p className={styles.headerDescription}>
-            Découvrez les séries incontournables triées par genre.
+            Découvrez les séries ajoutées à votre liste triées par genre.
           </p>
         </div>
       </header>
@@ -88,7 +79,7 @@ export default function SeriesPage() {
       <main className={`${styles.main} backgrounds`}>
         {categories.length === 0 ? (
           <p style={{ textAlign: "center", color: "white" }}>
-            Aucune série trouvée 😥
+            Aucune série dans votre liste 😥
           </p>
         ) : (
           categories.map(({ genre, movies }) => (

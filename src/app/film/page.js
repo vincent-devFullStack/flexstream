@@ -9,68 +9,51 @@ export default function FilmPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const loadMovies = async () => {
+    const loadUserMovies = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       try {
-        const res = await fetch("/api/films");
-        const { popular, topRated } = await res.json();
+        const res = await fetch("/api/user/profile", {
+          headers: { token },
+        });
 
-        const genreLabels = {
-          28: "Action",
-          12: "Aventure",
-          16: "Animation",
-          35: "Comédie",
-          80: "Crime",
-          99: "Documentaire",
-          18: "Drame",
-          10751: "Famille",
-          14: "Fantasy",
-          36: "Histoire",
-          27: "Horreur",
-          10402: "Musique",
-          9648: "Mystère",
-          10749: "Romance",
-          878: "Science-fiction",
-          10770: "Téléfilm",
-          53: "Thriller",
-          10752: "Guerre",
-          37: "Western",
-        };
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erreur serveur");
 
-        const groupedByGenre = {};
+        const userMovies = data.movies || [];
 
-        [...popular, ...topRated].forEach((movie) => {
-          movie.genre_ids.forEach((id) => {
-            const genre = genreLabels[id];
-            if (!genre) return;
+        // 🔁 Regrouper par genre
+        const grouped = {};
 
-            if (!groupedByGenre[genre]) groupedByGenre[genre] = [];
+        userMovies.forEach((movie) => {
+          (movie.genres || []).forEach((genre) => {
+            if (!grouped[genre]) grouped[genre] = [];
 
-            groupedByGenre[genre].push({
-              id: movie.id,
+            grouped[genre].push({
+              id: movie.tmdbId,
               title: movie.title,
-              description: movie.overview || "Pas de description disponible",
-              image: movie.poster_path
-                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+              image: movie.posterPath
+                ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
                 : "/placeholder.jpg",
-              rating: movie.vote_average,
+              rating: movie.note,
+              description: "",
             });
           });
         });
 
-        const structuredData = Object.entries(groupedByGenre).map(
-          ([genre, movies]) => ({
-            genre,
-            movies,
-          })
-        );
+        const result = Object.entries(grouped).map(([genre, movies]) => ({
+          genre,
+          movies,
+        }));
 
-        setCategories(structuredData);
+        setCategories(result);
       } catch (err) {
-        console.error("Erreur lors du chargement des films :", err);
+        console.error("Erreur lors du chargement :", err);
       }
     };
 
-    loadMovies();
+    loadUserMovies();
   }, []);
 
   const scrollGenreRow = useCallback((genre, offset) => {
@@ -88,41 +71,45 @@ export default function FilmPage() {
         <div className={styles.headerContent}>
           <h1 className={styles.headerTitle}>Ma sélection de films</h1>
           <p className={styles.headerDescription}>
-            Découvrez mes coups de cœur classés par genre.
+            Découvrez vos films ajoutés classés par genre.
           </p>
         </div>
       </header>
 
       <main className={`${styles.main} backgrounds`}>
-        {categories.map(({ genre, movies }) => (
-          <section key={genre}>
-            <h2 className={styles.sectionTitle}>{genre}</h2>
+        {categories.length === 0 ? (
+          <p style={{ textAlign: "center" }}>Aucun film dans votre liste 😥</p>
+        ) : (
+          categories.map(({ genre, movies }) => (
+            <section key={genre}>
+              <h2 className={styles.sectionTitle}>{genre}</h2>
 
-            <div className={styles.movieRowWrapper}>
-              <button
-                className={styles.scrollButton}
-                onClick={() => scrollGenreRow(genre, -300)}
-                aria-label={`Faire défiler les films ${genre} vers la gauche`}
-              >
-                ◀
-              </button>
+              <div className={styles.movieRowWrapper}>
+                <button
+                  className={styles.scrollButton}
+                  onClick={() => scrollGenreRow(genre, -300)}
+                  aria-label={`Défiler ${genre} à gauche`}
+                >
+                  ◀
+                </button>
 
-              <div className={styles.movieRow} id={`row-${genre}`}>
-                {movies.map((movie) => (
-                  <Movie key={`movie-${movie.id}`} {...movie} type="film" />
-                ))}
+                <div className={styles.movieRow} id={`row-${genre}`}>
+                  {movies.map((movie) => (
+                    <Movie key={`movie-${movie.id}`} {...movie} type="film" />
+                  ))}
+                </div>
+
+                <button
+                  className={styles.scrollButton}
+                  onClick={() => scrollGenreRow(genre, 300)}
+                  aria-label={`Défiler ${genre} à droite`}
+                >
+                  ▶
+                </button>
               </div>
-
-              <button
-                className={styles.scrollButton}
-                onClick={() => scrollGenreRow(genre, 300)}
-                aria-label={`Faire défiler les films ${genre} vers la droite`}
-              >
-                ▶
-              </button>
-            </div>
-          </section>
-        ))}
+            </section>
+          ))
+        )}
       </main>
 
       <footer className={styles.footer}>

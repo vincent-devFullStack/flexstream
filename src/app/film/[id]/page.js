@@ -81,6 +81,37 @@ export default function FilmDetail() {
     localStorage.setItem(`rating-${id}`, value);
   };
 
+  const handleAddToList = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !user) return;
+
+    const title = media.title || media.name;
+
+    const body = {
+      type: isSerie ? "series" : "movies",
+      tmdbId: media.id,
+      title,
+      posterPath: media.poster_path,
+      note: rating,
+    };
+
+    const res = await fetch("/api/user/add-media", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert("Ajouté à votre liste !");
+    } else {
+      alert(data.error || "Erreur lors de l'ajout");
+    }
+  };
+
   if (!media) return <p className={styles.loading}>Chargement...</p>;
 
   const title = media.title || media.name;
@@ -149,6 +180,7 @@ export default function FilmDetail() {
         <div className={styles.actions}>
           <button
             className={styles.addButton}
+            onClick={handleAddToList}
             disabled={!user}
             title={!user ? "Connectez-vous pour utiliser cette fonction" : ""}
           >

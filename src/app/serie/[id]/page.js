@@ -6,10 +6,10 @@ import ProviderSection from "../../components/ProviderSection";
 import CastSection from "../../components/CastSection";
 import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
+import { jwtDecode } from "jwt-decode";
 
 export default function SerieDetail() {
   const { id } = useParams();
-
   const [serie, setSerie] = useState(null);
   const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
@@ -20,6 +20,7 @@ export default function SerieDetail() {
     buy: [],
   });
   const [cast, setCast] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -51,7 +52,7 @@ export default function SerieDetail() {
         setProviders(providerData);
         setCast(Array.isArray(castData.cast) ? castData.cast.slice(0, 10) : []);
 
-        const savedRating = localStorage.getItem(`rating-serie-${id}`);
+        const savedRating = localStorage.getItem(`rating-${id}`);
         if (savedRating) setRating(parseInt(savedRating));
       } catch (err) {
         console.error(
@@ -64,9 +65,48 @@ export default function SerieDetail() {
     loadSerieDetails();
   }, [id]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (err) {
+        console.error("Token invalide");
+      }
+    }
+  }, []);
+
   const handleRate = (value) => {
     setRating(value);
-    localStorage.setItem(`rating-serie-${id}`, value);
+    localStorage.setItem(`rating-${id}`, value);
+  };
+
+  const handleAddToList = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !serie || !user) return;
+
+    const res = await fetch("/api/user/add-media", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token,
+      },
+      body: JSON.stringify({
+        type: "series",
+        tmdbId: serie.id,
+        title: serie.name,
+        posterPath: serie.poster_path,
+        note: rating,
+      }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert("Série ajoutée à votre liste !");
+    } else {
+      alert(data.error || "Erreur lors de l'ajout");
+    }
   };
 
   if (!serie) return <p className={styles.loading}>Chargement...</p>;
@@ -134,7 +174,14 @@ export default function SerieDetail() {
         )}
 
         <div className={styles.actions}>
-          <button className={styles.addButton}>+ Ajouter à ma liste</button>
+          <button
+            onClick={handleAddToList}
+            className={styles.addButton}
+            disabled={!user}
+            title={!user ? "Connectez-vous pour ajouter à votre liste" : ""}
+          >
+            + Ajouter à ma liste
+          </button>
         </div>
 
         <div className={styles.rating}>
@@ -145,9 +192,11 @@ export default function SerieDetail() {
               className={`${styles.star} ${
                 hovered >= n || rating >= n ? styles.filled : ""
               }`}
-              onClick={() => handleRate(n)}
-              onMouseEnter={() => setHovered(n)}
-              onMouseLeave={() => setHovered(0)}
+              onClick={() => user && handleRate(n)}
+              onMouseEnter={() => user && setHovered(n)}
+              onMouseLeave={() => user && setHovered(0)}
+              disabled={!user}
+              title={!user ? "Connectez-vous pour noter" : ""}
             >
               ★
             </button>
