@@ -29,6 +29,14 @@ export default function Navbar() {
 
   const isActive = (path) => (pathname === path ? styles.active : "");
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    setMenuOpen(false);
+    setShowDropdown(false);
+    router.push("/");
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -48,7 +56,6 @@ export default function Navbar() {
         setShowDropdown(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -57,13 +64,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const controller = new AbortController();
-
     const fetchSuggestions = async () => {
       if (search.length <= 2) {
         setSuggestions([]);
         return;
       }
-
       try {
         const res = await fetch(
           `/api/recherche?query=${encodeURIComponent(search)}`,
@@ -78,7 +83,6 @@ export default function Navbar() {
           .filter((item) => item.type === "movie")
           .sort((a, b) => b.popularity - a.popularity)
           .slice(0, 4);
-
         const series = results
           .filter((item) => item.type === "tv")
           .sort((a, b) => b.popularity - a.popularity)
@@ -112,7 +116,6 @@ export default function Navbar() {
 
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscapeKey);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscapeKey);
@@ -204,7 +207,6 @@ export default function Navbar() {
         >
           Accueil
         </Link>
-
         {user && (
           <>
             <Link
@@ -216,30 +218,33 @@ export default function Navbar() {
             </Link>
             <Link
               href="/serie"
-              className={isActive("/series")}
+              className={isActive("/serie")}
               onClick={() => setMenuOpen(false)}
             >
               Séries
             </Link>
             <div className={styles.mobileOnly}>
-              <Link href="/profil" onClick={() => setMenuOpen(false)}>
+              <Link
+                href="/profil"
+                onClick={() => setMenuOpen(false)}
+                style={{ display: "block", textAlign: "center" }}
+              >
                 Mon profil
               </Link>
-              <button
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  setUser(null);
-                  setMenuOpen(false);
-                  router.push("/");
-                }}
-                className={styles.mobileButton}
-              >
-                Se déconnecter
+
+              <button onClick={logout} className={styles.logoutMobile}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                >
+                  <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                </svg>
               </button>
             </div>
           </>
         )}
-
         {!user && (
           <Link
             href="/login"
@@ -272,15 +277,7 @@ export default function Navbar() {
                 <Link href="/profil" className={styles.dropdownItem}>
                   Mon profil
                 </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem("token");
-                    setUser(null);
-                    setShowDropdown(false);
-                    router.push("/");
-                  }}
-                  className={styles.dropdownItem}
-                >
+                <button onClick={logout} className={styles.dropdownItem}>
                   Se déconnecter
                 </button>
               </div>

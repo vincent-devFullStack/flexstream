@@ -59,7 +59,6 @@
   cursor: pointer;
 }
 
-/* Suggestions autocomplete */
 .suggestions {
   position: absolute;
   top: 42px;
@@ -130,7 +129,6 @@
   margin-top: 2px;
 }
 
-/* Navigation links */
 .navLinks {
   display: flex;
   gap: 12px;
@@ -165,7 +163,6 @@
   padding-bottom: 4px;
 }
 
-/* Boutons de connexion */
 .signIn,
 .mobileSignIn {
   background-color: #ebaf00;
@@ -185,7 +182,6 @@
   transform: translateY(-3px);
 }
 
-/* Affichage conditionnel */
 .desktopOnly {
   display: block;
 }
@@ -289,7 +285,29 @@
   background-color: #333;
 }
 
-/* Responsive */
+.logoutMobile {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  width: 100%;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.logoutMobile:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 @media (max-width: 600px) {
   .searchBar {
     margin: 10px 20px;
@@ -317,6 +335,7 @@
     backdrop-filter: blur(6px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
     animation: fadeSlideDown 0.3s ease;
+    margin: 0 !important;
   }
 
   @keyframes fadeSlideDown {
@@ -339,15 +358,15 @@
   }
 
   .rightZone {
-    order: 2;
-    margin-left: auto;
+    display: none;
   }
 
   .userActions {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: none;
+  }
+
+  .userTag {
+    display: none;
   }
 
   .mobileOnly {
