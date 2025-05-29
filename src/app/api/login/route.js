@@ -5,7 +5,9 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
+    email = email.toLowerCase(); // 🔒 normalisation de l’email
+
     await connectToDB();
 
     const user = await User.findOne({ email });

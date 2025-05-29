@@ -4,7 +4,9 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
+    email = email.toLowerCase(); // 🔒 Normalisation
+
     await connectToDB();
 
     const existingUser = await User.findOne({ email });
