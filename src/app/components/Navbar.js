@@ -40,9 +40,7 @@ export default function Navbar() {
       const userTag = `user#${decoded.userId.slice(-4)}`;
       setUser({ ...decoded, tag: userTag });
 
-      fetch("/api/user/profile", {
-        headers: { token },
-      })
+      fetch("/api/user/profile", { headers: { token } })
         .then((res) => res.json())
         .then((data) => {
           if (data?.avatar) setAvatar(data.avatar);
@@ -59,9 +57,7 @@ export default function Navbar() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -91,7 +87,7 @@ export default function Navbar() {
         setSuggestions([...series, ...movies]);
       } catch (err) {
         if (err.name !== "AbortError") {
-          console.error("Erreur lors du chargement des suggestions :", err);
+          console.error("Erreur suggestions :", err);
         }
       }
     };
@@ -157,13 +153,11 @@ export default function Navbar() {
           >
             <input
               type="text"
-              placeholder="Rechercher un film ou une série..."
+              placeholder="Rechercher..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button type="submit" className={styles.searchButton}>
-              🔍
-            </button>
+            <button type="submit">🔍</button>
             {suggestions.length > 0 && (
               <ul className={styles.suggestions}>
                 {suggestions.map((item) => (
@@ -172,10 +166,6 @@ export default function Navbar() {
                       href={`/${item.type === "tv" ? "serie" : "film"}/${
                         item.id
                       }`}
-                      onClick={() => {
-                        setSuggestions([]);
-                        setMenuOpen(false);
-                      }}
                     >
                       <img
                         src={
@@ -199,88 +189,77 @@ export default function Navbar() {
             )}
           </form>
 
-          <Link
-            href="/"
-            className={isActive("/")}
-            onClick={() => setMenuOpen(false)}
-          >
+          <Link href="/" className={isActive("/")}>
             Accueil
           </Link>
           {user && (
             <>
-              <Link
-                href="/film"
-                className={isActive("/film")}
-                onClick={() => setMenuOpen(false)}
-              >
+              <Link href="/film" className={isActive("/film")}>
                 Films
               </Link>
-              <Link
-                href="/serie"
-                className={isActive("/serie")}
-                onClick={() => setMenuOpen(false)}
-              >
+              <Link href="/serie" className={isActive("/serie")}>
                 Séries
               </Link>
-              <div className={`${styles.navLinksSection} ${styles.mobileOnly}`}>
-                <Link
-                  href="/profil"
-                  className={styles.dropdownItem}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Mon profil
-                </Link>
-                <button onClick={logout} className={styles.dropdownItem}>
-                  Se déconnecter
-                </button>
-              </div>
             </>
           )}
-          {!user && (
-            <div className={styles.navLinksSection}>
-              <button
-                className={styles.signIn}
-                onClick={() => {
-                  setShowAuthModal(true);
-                  setMenuOpen(false);
-                }}
-              >
-                Connexion
-              </button>
-            </div>
+          {!user && menuOpen && (
+            <button
+              className={styles.signIn}
+              onClick={() => {
+                setShowAuthModal(true);
+                setMenuOpen(false);
+              }}
+            >
+              Connexion
+            </button>
           )}
         </div>
       </div>
 
-      {user && (
-        <div className={styles.userActions} ref={dropdownRef}>
-          <div
-            className={styles.userWrapper}
-            onClick={() => setShowDropdown(!showDropdown)}
-          >
-            <div className={styles.avatarWithName}>
-              {avatar ? (
-                <img src={avatar} alt="avatar" className={styles.avatarImage} />
-              ) : (
-                <div className={styles.avatarCircle}>
-                  {user.email?.charAt(0).toUpperCase() || "U"}
+      <div className={styles.userActions}>
+        {user ? (
+          <div className={styles.userActions} ref={dropdownRef}>
+            <div
+              className={styles.userWrapper}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <div className={styles.avatarWithName}>
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt="avatar"
+                    className={styles.avatarImage}
+                  />
+                ) : (
+                  <div className={styles.avatarCircle}>
+                    {user.email?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+                <span className={styles.userTag}>{user.tag}</span>
+              </div>
+              {showDropdown && (
+                <div className={styles.dropdown}>
+                  <Link href="/profil" className={styles.dropdownItem}>
+                    Mon profil
+                  </Link>
+                  <button onClick={logout} className={styles.dropdownItem}>
+                    Se déconnecter
+                  </button>
                 </div>
               )}
-              <span className={styles.userTag}>{user.tag}</span>
             </div>
-            {showDropdown && (
-              <div className={styles.dropdown}>
-                <Link href="/profil" className={styles.dropdownItem}>
-                  Mon profil
-                </Link>
-                <button onClick={logout} className={styles.dropdownItem}>
-                  Se déconnecter
-                </button>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className={`${styles.userActions} ${styles.desktopOnly}`}>
+            <button
+              className={styles.signIn}
+              onClick={() => setShowAuthModal(true)}
+            >
+              Connexion
+            </button>
+          </div>
+        )}
+      </div>
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </nav>

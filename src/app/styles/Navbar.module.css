@@ -1,7 +1,7 @@
 /* --- structure globale --- */
 .navbar {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
@@ -92,6 +92,10 @@
 .burger.active::after {
   transform: rotate(-45deg);
   bottom: 50%;
+}
+
+.desktopOnly {
+  display: inline-flex;
 }
 
 /* --- barre de recherche --- */
@@ -215,7 +219,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  width: auto; /* <- correction ici */
 }
 
 .userWrapper {
@@ -294,13 +298,18 @@
 /* --- bouton connexion --- */
 .signIn {
   background-color: #ebaf00;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 9999px;
   font-weight: bold;
   color: white;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .signIn:hover {
@@ -325,6 +334,10 @@
 @media (max-width: 768px) {
   .burger {
     display: block;
+  }
+
+  .desktopOnly {
+    display: none;
   }
 
   .mobileOnly {
