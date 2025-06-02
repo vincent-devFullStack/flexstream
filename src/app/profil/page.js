@@ -7,54 +7,82 @@ import styles from "../styles/Profil.module.css";
 export default function ProfilPage() {
   const router = useRouter();
   const [avatar, setAvatar] = useState("/default-avatar.png");
+  const [newAvatar, setNewAvatar] = useState(null);
+  const [avatarSaved, setAvatarSaved] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    fetch("/api/user/profile", {
-      headers: { token },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.avatar) {
-          setAvatar(data.avatar);
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/user/profile", {
+          headers: { token },
+        });
+        const data = await res.json();
+        if (res.ok && data?.user) {
+          setUser(data.user);
+          if (data.user.avatar) {
+            setAvatar(data.user.avatar);
+          }
         }
-      });
+      } catch (err) {
+        console.error("Erreur chargement profil :", err);
+      }
+    };
+
+    fetchUser();
   }, []);
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result;
-      setAvatar(base64);
-
-      const res = await fetch("/api/user/upload-avatar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          token: localStorage.getItem("token"),
-        },
-        body: JSON.stringify({ avatar: base64 }),
-      });
-
-      if (!res.ok) {
-        alert("Erreur lors du changement d'avatar");
-      }
+    reader.onloadend = () => {
+      setNewAvatar(reader.result);
+      setAvatarSaved(false);
     };
     reader.readAsDataURL(file);
   };
 
+  const handleAvatarUpload = async () => {
+    if (!newAvatar) return;
+
+    const res = await fetch("/api/user/upload-avatar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token: localStorage.getItem("token"),
+      },
+      body: JSON.stringify({ avatar: newAvatar }),
+    });
+
+    if (res.ok) {
+      setAvatar(newAvatar);
+      setNewAvatar(null);
+      setAvatarSaved(true);
+      setTimeout(() => setAvatarSaved(false), 3000);
+    } else {
+      alert("Erreur lors du changement d'avatar");
+    }
+  };
+
   const handlePasswordUpdate = async () => {
     const token = localStorage.getItem("token");
+
     if (!newPassword || newPassword.length < 6) {
       alert("Mot de passe trop court (min 6 caractères)");
       return;
     }
+
+    const confirm = window.confirm(
+      "Confirmer la mise à jour du mot de passe ?"
+    );
+    if (!confirm) return;
 
     const res = await fetch("/api/user/change-password", {
       method: "POST",
@@ -66,8 +94,9 @@ export default function ProfilPage() {
     });
 
     if (res.ok) {
-      alert("Mot de passe mis à jour !");
       setNewPassword("");
+      setPasswordUpdated(true);
+      setTimeout(() => setPasswordUpdated(false), 3000);
     } else {
       alert("Erreur lors de la mise à jour.");
     }
@@ -104,8 +133,14 @@ export default function ProfilPage() {
       <h1 className={styles.title}>Mon Profil</h1>
 
       <div className={styles.section}>
-        <img src={avatar} alt="Avatar" className={styles.avatar} />
-        <input type="file" accept="image/*" onChange={handleAvatarChange} />
+        <img src={newAvatar || avatar} alt="Avatar" className={styles.avatar} />
+        <input type="file" accept="image/*" onChange={handleAvatarFile} />
+        <button
+          className={avatarSaved ? styles.successButton : styles.button}
+          onClick={handleAvatarUpload}
+        >
+          {avatarSaved ? "Image mise à jour !" : "Valider l'image"}
+        </button>
       </div>
 
       <div className={styles.section}>
@@ -117,8 +152,11 @@ export default function ProfilPage() {
           onChange={(e) => setNewPassword(e.target.value)}
           className={styles.input}
         />
-        <button onClick={handlePasswordUpdate} className={styles.button}>
-          Mettre à jour
+        <button
+          onClick={handlePasswordUpdate}
+          className={passwordUpdated ? styles.successButton : styles.button}
+        >
+          {passwordUpdated ? "Mot de passe mis à jour !" : "Mettre à jour"}
         </button>
       </div>
 

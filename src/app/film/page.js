@@ -21,7 +21,7 @@ export default function FilmPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Erreur serveur");
 
-        const userMovies = data.movies || [];
+        const userMovies = data?.user?.movies || [];
 
         // 🔁 Regrouper par genre
         const grouped = {};
@@ -32,7 +32,7 @@ export default function FilmPage() {
 
             grouped[genre].push({
               id: movie.tmdbId,
-              title: movie.title,
+              title: movie.title || "Sans titre",
               image: movie.posterPath
                 ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
                 : "/placeholder.jpg",
@@ -113,7 +113,17 @@ export default function FilmPage() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2025 FlexStream par Vincent Silvestri. Tous droits réservés.</p>
+        <p>
+          © 2025 FlexStream by Vincent Silvestri. All rights reserved. —{" "}
+          <a
+            href="https://vince-dev.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.portfolioLink}
+          >
+            Mon portfolio
+          </a>
+        </p>
       </footer>
     </>
   );

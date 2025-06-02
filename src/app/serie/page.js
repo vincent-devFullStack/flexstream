@@ -21,7 +21,7 @@ export default function SeriesPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Erreur serveur");
 
-        const userSeries = data.series || [];
+        const userSeries = data?.user?.series || [];
 
         // 🔁 Regrouper par genre
         const grouped = {};
@@ -32,7 +32,7 @@ export default function SeriesPage() {
 
             grouped[genre].push({
               id: serie.tmdbId,
-              title: serie.title,
+              title: serie.title || "Sans titre",
               image: serie.posterPath
                 ? `https://image.tmdb.org/t/p/w500${serie.posterPath}`
                 : "/placeholder.jpg",
@@ -44,7 +44,7 @@ export default function SeriesPage() {
 
         const result = Object.entries(grouped).map(([genre, series]) => ({
           genre,
-          movies: series, // on garde le même nom que pour Movie component
+          movies: series, // pour rester compatible avec le composant Movie
         }));
 
         setCategories(result);
@@ -112,7 +112,17 @@ export default function SeriesPage() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2025 FlexStream par Vincent Silvestri. Tous droits réservés.</p>
+        <p>
+          © 2025 FlexStream by Vincent Silvestri. All rights reserved. —{" "}
+          <a
+            href="https://vince-dev.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.portfolioLink}
+          >
+            Mon portfolio
+          </a>
+        </p>
       </footer>
     </>
   );

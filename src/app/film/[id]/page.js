@@ -7,6 +7,7 @@ import CastSection from "../../components/CastSection";
 import styles from "../../styles/FilmDetail.module.css";
 import { BiSolidLeftArrow } from "react-icons/bi";
 import { jwtDecode } from "jwt-decode";
+import Navbar from "../../components/Navbar";
 
 export default function FilmDetail() {
   const { id } = useParams();
@@ -25,7 +26,9 @@ export default function FilmDetail() {
   });
   const [cast, setCast] = useState([]);
   const [user, setUser] = useState(null);
+  const [isInList, setIsInList] = useState(false);
 
+  // Chargement des détails du film/série
   useEffect(() => {
     if (!id) return;
 
@@ -64,17 +67,34 @@ export default function FilmDetail() {
     loadMediaDetails();
   }, [id, type]);
 
+  // Chargement complet de l'utilisateur (via API)
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       try {
-        const decoded = jwtDecode(token);
-        setUser(decoded);
+        jwtDecode(token); // juste pour valider
+        const res = await fetch("/api/user/profile", {
+          headers: { token },
+        });
+        const data = await res.json();
+        if (res.ok) setUser(data.user);
       } catch (err) {
-        console.error("Token invalide");
+        console.error("Erreur lors du chargement du profil utilisateur :", err);
       }
-    }
+    };
+
+    fetchUser();
   }, []);
+
+  // Détection si ce média est déjà dans la liste de l'utilisateur
+  useEffect(() => {
+    if (!user || !media) return;
+    const list = isSerie ? user.series : user.movies;
+    const isIn = list?.some((item) => item.tmdbId === media.id);
+    setIsInList(isIn);
+  }, [media, user]);
 
   const handleRate = (value) => {
     setRating(value);
@@ -83,7 +103,7 @@ export default function FilmDetail() {
 
   const handleAddToList = async () => {
     const token = localStorage.getItem("token");
-    if (!token || !user) return;
+    if (!token || !user || !media) return;
 
     const title = media.title || media.name;
 
@@ -106,9 +126,42 @@ export default function FilmDetail() {
 
     const data = await res.json();
     if (res.ok) {
-      alert("Ajouté à votre liste !");
+      setIsInList(true);
+      console.log("Ajouté à votre liste !");
     } else {
-      alert(data.error || "Erreur lors de l'ajout");
+      console.error("Erreur lors de l'ajout :", data.error);
+    }
+  };
+
+  const handleRemoveFromList = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !user || !media?.id) return;
+
+    const typeToSend = isSerie ? "series" : "movies";
+
+    try {
+      const res = await fetch("/api/user/remove-media", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token,
+        },
+        body: JSON.stringify({
+          type: typeToSend,
+          tmdbId: media.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsInList(false);
+        console.log("Retiré de votre liste !");
+      } else {
+        console.error("Erreur lors de la suppression :", data.error);
+      }
+    } catch (err) {
+      console.error("Erreur réseau :", err);
     }
   };
 
@@ -120,100 +173,116 @@ export default function FilmDetail() {
     media.overview?.trim() || "Aucune description disponible pour ce contenu.";
 
   return (
-    <div className={styles.container}>
-      <img
-        src={
-          media.poster_path
-            ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
-            : "/placeholder.jpg"
-        }
-        alt={`Affiche de ${title}`}
-        className={styles.poster}
-      />
+    <>
+      <Navbar />
+      <div className={styles.container}>
+        <img
+          src={
+            media.poster_path
+              ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
+              : "/placeholder.jpg"
+          }
+          alt={`Affiche de ${title}`}
+          className={styles.poster}
+        />
 
-      <div className={styles.details}>
-        <h1 className={styles.title}>{title}</h1>
-        <p className={styles.subtitle}>
-          Sortie : {new Date(date).toLocaleDateString("fr-FR")}
-        </p>
-        <p className={styles.subtitle}>
-          ⭐ {media.vote_average.toFixed(1)} —{" "}
-          {media.genres.map((g) => g.name).join(", ")}
-        </p>
-
-        <p className={styles.overview}>{description}</p>
-
-        {trailerKey && (
-          <div className={styles.trailer}>
-            <h3>Bande-annonce</h3>
-            <iframe
-              width="560"
-              height="315"
-              src={`https://www.youtube.com/embed/${trailerKey}`}
-              title={`Bande-annonce de ${title}`}
-              frameBorder="0"
-              allowFullScreen
-            />
-          </div>
-        )}
-
-        <CastSection cast={cast} />
-
-        {providers.flatrate.length ||
-        providers.rent.length ||
-        providers.buy.length ? (
-          <>
-            <ProviderSection
-              title="En streaming avec abonnement"
-              providers={providers.flatrate}
-            />
-            <ProviderSection title="À la location" providers={providers.rent} />
-            <ProviderSection title="À l'achat" providers={providers.buy} />
-          </>
-        ) : (
-          <p style={{ marginTop: "1rem", fontStyle: "italic", color: "#aaa" }}>
-            Aucune plateforme de streaming n'est disponible pour ce{" "}
-            {type === "tv" ? "série" : "film"}.
+        <div className={styles.details}>
+          <h1 className={styles.title}>{title}</h1>
+          <p className={styles.subtitle}>
+            Sortie : {new Date(date).toLocaleDateString("fr-FR")}
           </p>
-        )}
+          <p className={styles.subtitle}>
+            ⭐ {media.vote_average.toFixed(1)} —{" "}
+            {media.genres.map((g) => g.name).join(", ")}
+          </p>
 
-        <div className={styles.actions}>
-          <button
-            className={styles.addButton}
-            onClick={handleAddToList}
-            disabled={!user}
-            title={!user ? "Connectez-vous pour utiliser cette fonction" : ""}
-          >
-            + Ajouter à ma liste
-          </button>
-        </div>
+          <p className={styles.overview}>{description}</p>
 
-        <div className={styles.rating}>
-          <span className={styles.rateLabel}>Votre note :</span>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              className={`${styles.star} ${
-                hovered >= n || rating >= n ? styles.filled : ""
-              }`}
-              onClick={() => user && handleRate(n)}
-              onMouseEnter={() => user && setHovered(n)}
-              onMouseLeave={() => user && setHovered(0)}
-              disabled={!user}
-              title={!user ? "Connectez-vous pour noter" : ""}
+          {trailerKey && (
+            <div className={styles.trailer}>
+              <h3>Bande-annonce</h3>
+              <iframe
+                width="560"
+                height="315"
+                src={`https://www.youtube.com/embed/${trailerKey}`}
+                title={`Bande-annonce de ${title}`}
+                frameBorder="0"
+                allowFullScreen
+              />
+            </div>
+          )}
+
+          <CastSection cast={cast} />
+
+          {providers.flatrate.length ||
+          providers.rent.length ||
+          providers.buy.length ? (
+            <>
+              <ProviderSection
+                title="En streaming avec abonnement"
+                providers={providers.flatrate}
+              />
+              <ProviderSection
+                title="À la location"
+                providers={providers.rent}
+              />
+              <ProviderSection title="À l'achat" providers={providers.buy} />
+            </>
+          ) : (
+            <p
+              style={{ marginTop: "1rem", fontStyle: "italic", color: "#aaa" }}
             >
-              ★
-            </button>
-          ))}
-        </div>
+              Aucune plateforme de streaming n'est disponible pour ce{" "}
+              {type === "tv" ? "série" : "film"}.
+            </p>
+          )}
 
-        <a href="/" className={styles.backButton}>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <BiSolidLeftArrow style={{ fontSize: "1rem" }} />
-            Retour
-          </span>
-        </a>
+          <div className={styles.actions}>
+            {isInList ? (
+              <button
+                className={styles.removeButton}
+                onClick={handleRemoveFromList}
+                disabled={!user}
+              >
+                − Retirer de ma liste
+              </button>
+            ) : (
+              <button
+                className={styles.addButton}
+                onClick={handleAddToList}
+                disabled={!user}
+              >
+                + Ajouter à ma liste
+              </button>
+            )}
+          </div>
+
+          <div className={styles.rating}>
+            <span className={styles.rateLabel}>Votre note :</span>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                className={`${styles.star} ${
+                  hovered >= n || rating >= n ? styles.filled : ""
+                }`}
+                onClick={() => user && handleRate(n)}
+                onMouseEnter={() => user && setHovered(n)}
+                onMouseLeave={() => user && setHovered(0)}
+                disabled={!user}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+
+          <a href="/" className={styles.backButton}>
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <BiSolidLeftArrow style={{ fontSize: "1rem" }} />
+              Retour
+            </span>
+          </a>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

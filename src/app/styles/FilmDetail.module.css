@@ -8,6 +8,7 @@
   background: linear-gradient(to bottom, #000000, #1a1a1a);
   min-height: 100vh;
   animation: fadeIn 0.2s ease-in;
+  margin-top: 60px;
 }
 
 .poster {
@@ -93,6 +94,21 @@
   cursor: not-allowed !important;
   box-shadow: none !important;
   opacity: 0.6;
+}
+
+.removeButton {
+  background-color: #ff4d4d;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 9999px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.removeButton:hover {
+  background-color: #ff6666;
 }
 
 .rating {

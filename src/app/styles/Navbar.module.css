@@ -42,6 +42,15 @@
   color: #ffc800;
 }
 
+.avatarImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffc940;
+  background-color: #000;
+}
+
 /* --- burger --- */
 .burger {
   display: none;
@@ -314,6 +323,13 @@
 
 .signIn:hover {
   background-color: #ffc940;
+}
+
+.suggestions img {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 /* --- groupement responsive mobile --- */

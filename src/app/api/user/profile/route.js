@@ -23,10 +23,12 @@ export async function GET(req) {
     }
 
     return NextResponse.json({
-      movies: user.movies || [],
-      series: user.series || [],
-      avatar: user.avatar || null, // ✅ ajout ici
-      email: user.email, // optionnel si tu veux l'afficher
+      user: {
+        movies: user.movies || [],
+        series: user.series || [],
+        avatar: user.avatar || null,
+        email: user.email,
+      },
     });
   } catch (err) {
     console.error("Erreur API /user/profile :", err);

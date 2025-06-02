@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -43,7 +44,7 @@ export default function Navbar() {
       fetch("/api/user/profile", { headers: { token } })
         .then((res) => res.json())
         .then((data) => {
-          if (data?.avatar) setAvatar(data.avatar);
+          if (data?.user?.avatar) setAvatar(data.user.avatar);
         });
     } catch (err) {
       console.error("Token invalide :", err);
@@ -163,7 +164,7 @@ export default function Navbar() {
                 {suggestions.map((item) => (
                   <li key={`${item.type}-${item.id}`}>
                     <Link
-                      href={`/${item.type === "tv" ? "serie" : "film"}/${
+                      href={`/${item.type === "tv" ? "serie" : "film"}/$${
                         item.id
                       }`}
                     >
@@ -174,6 +175,7 @@ export default function Navbar() {
                             : "/placeholder.jpg"
                         }
                         alt=""
+                        style={{ width: 50, height: 75, objectFit: "cover" }}
                       />
                       <div>
                         <span>{item.title}</span>

@@ -61,7 +61,17 @@ export default async function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2025 FlexStream by Vincent Silvestri. All rights reserved.</p>
+        <p>
+          © 2025 FlexStream by Vincent Silvestri. All rights reserved. —{" "}
+          <a
+            href="https://vince-dev.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.portfolioLink}
+          >
+            Mon portfolio
+          </a>
+        </p>
       </footer>
     </>
   );
