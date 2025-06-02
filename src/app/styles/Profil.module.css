@@ -109,3 +109,17 @@
 .deleteButton:hover {
   background-color: #e53935;
 }
+
+@media (max-width: 600px) {
+  .input {
+    width: 100%;
+  }
+
+  .button,
+  .successButton,
+  .secondaryButton,
+  .deleteButton {
+    width: 100%;
+    text-align: center;
+  }
+}
