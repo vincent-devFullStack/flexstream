@@ -17,8 +17,7 @@ export async function GET(_request, context) {
       type === "tv" ? await getSerieCredits(id) : await getMovieCredits(id);
 
     return new Response(JSON.stringify({ cast: data }));
-  } catch (err) {
-    console.error(`[TMDB] Erreur chargement casting ${type}/${id} :`, err);
+  } catch {
     return new Response(
       JSON.stringify({ error: "Erreur lors du chargement du casting" }),
       { status: 500 }

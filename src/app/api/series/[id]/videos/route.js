@@ -12,8 +12,7 @@ export async function GET(_request, context) {
   try {
     const data = await getSerieVideos(id);
     return new Response(JSON.stringify({ results: data }));
-  } catch (err) {
-    console.error("Erreur getSerieVideos :", err);
+  } catch {
     return new Response(
       JSON.stringify({ error: "Erreur lors de la récupération des vidéos" }),
       { status: 500 }

@@ -21,8 +21,7 @@ export async function GET() {
     return new Response(JSON.stringify({ popular, topRated }), {
       status: 200,
     });
-  } catch (err) {
-    console.error("[TMDB] Erreur récupération films :", err);
+  } catch {
     return new Response(
       JSON.stringify({ error: "Impossible de récupérer les films" }),
       { status: 500 }

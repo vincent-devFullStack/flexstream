@@ -15,8 +15,7 @@ export async function GET(_request, context) {
   try {
     const movie = await getMovieDetails(id);
     return new Response(JSON.stringify(movie));
-  } catch (err) {
-    console.error(`[TMDB] Erreur chargement film ${id} :`, err);
+  } catch {
     return new Response(
       JSON.stringify({ error: "Impossible de charger les détails du film" }),
       { status: 500 }

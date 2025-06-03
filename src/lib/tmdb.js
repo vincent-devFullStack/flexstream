@@ -9,12 +9,10 @@ async function fetchFromTMDB(endpoint, params = "") {
   const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}${params}`;
 
   const res = await fetch(url, {
-    next: { revalidate: 3600 }, // Met en cache pendant 1h pour limiter les appels
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error(`[TMDb] Erreur sur ${endpoint} (${res.status})`, errorText);
     throw new Error(
       `Impossible de récupérer les données depuis TMDb (${endpoint})`
     );
@@ -23,7 +21,6 @@ async function fetchFromTMDB(endpoint, params = "") {
   return res.json();
 }
 
-// Films
 export async function getPopularMovies() {
   const data = await fetchFromTMDB("/movie/popular", "&language=fr-FR&page=1");
   return data.results;
@@ -41,7 +38,6 @@ export async function getMovieDetails(id) {
   return fetchFromTMDB(`/movie/${id}`, "&language=fr-FR");
 }
 
-// Recherche
 export async function getSearchResults(query) {
   const data = await fetchFromTMDB(
     "/search/movie",
@@ -50,7 +46,6 @@ export async function getSearchResults(query) {
   return data.results;
 }
 
-// Séries
 export async function getPopularSeries() {
   const data = await fetchFromTMDB("/tv/popular", "&language=fr-FR&page=1");
   return data.results;
@@ -70,12 +65,6 @@ export async function getWatchProviders(id, type = "movie") {
   const res = await fetch(url);
 
   if (!res.ok) {
-    const text = await res.text();
-    console.error(
-      `[TMDb] Fournisseurs indisponibles (${url})`,
-      res.status,
-      text
-    );
     return {};
   }
 

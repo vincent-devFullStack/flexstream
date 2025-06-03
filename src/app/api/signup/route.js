@@ -19,8 +19,7 @@ export async function POST(req) {
     await newUser.save();
 
     return Response.json({ message: "User created" }, { status: 201 });
-  } catch (err) {
-    console.error(err);
+  } catch {
     return Response.json({ error: "Signup failed" }, { status: 500 });
   }
 }

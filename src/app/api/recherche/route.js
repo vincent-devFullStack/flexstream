@@ -45,8 +45,7 @@ export async function GET(request) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (err) {
-    console.error(`[TMDB] Erreur recherche "${query}" :`, err);
+  } catch {
     return new Response(
       JSON.stringify({ error: "Une erreur est survenue lors de la recherche" }),
       { status: 500 }

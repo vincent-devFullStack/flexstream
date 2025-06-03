@@ -19,11 +19,7 @@ export async function GET(_req, context) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (err) {
-    console.error(
-      `[TMDB] Erreur récupération plateformes ${type}/${id} :`,
-      err
-    );
+  } catch {
     return new Response(
       JSON.stringify({
         error: "Impossible de récupérer les plateformes disponibles",

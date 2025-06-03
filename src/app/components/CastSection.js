@@ -22,10 +22,8 @@ export default function CastSection({ cast = [] }) {
     <div style={{ marginTop: "2rem", position: "relative" }}>
       <h3 style={{ marginBottom: "0.5rem" }}>Têtes d'affiche</h3>
 
-      {/* Bouton gauche */}
       <ScrollButton direction="left" onClick={scrollByDirection} />
 
-      {/* Bouton droit */}
       <ScrollButton direction="right" onClick={scrollByDirection} />
 
       <div

@@ -23,8 +23,7 @@ export async function GET(_request, context) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (err) {
-    console.error(`[TMDB] Erreur chargement série ${id} :`, err);
+  } catch {
     return new Response(
       JSON.stringify({
         error: "Impossible de récupérer les détails de la série",

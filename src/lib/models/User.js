@@ -5,7 +5,7 @@ const mediaSchema = new mongoose.Schema({
   title: String,
   posterPath: String,
   note: Number,
-  genres: [String],
+  genre: String,
 });
 
 const userSchema = new mongoose.Schema({

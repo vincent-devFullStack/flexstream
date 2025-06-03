@@ -28,7 +28,6 @@ export default function FilmDetail() {
   const [user, setUser] = useState(null);
   const [isInList, setIsInList] = useState(false);
 
-  // Chargement des détails du film/série
   useEffect(() => {
     if (!id) return;
 
@@ -59,36 +58,34 @@ export default function FilmDetail() {
 
         const savedRating = localStorage.getItem(`rating-${id}`);
         if (savedRating) setRating(parseInt(savedRating));
-      } catch (err) {
-        console.error(`[${type}] Erreur lors du chargement de l'œuvre :`, err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     }
 
     loadMediaDetails();
   }, [id, type]);
 
-  // Chargement complet de l'utilisateur (via API)
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
       try {
-        jwtDecode(token); // juste pour valider
+        jwtDecode(token);
         const res = await fetch("/api/user/profile", {
           headers: { token },
         });
         const data = await res.json();
         if (res.ok) setUser(data.user);
-      } catch (err) {
-        console.error("Erreur lors du chargement du profil utilisateur :", err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     };
 
     fetchUser();
   }, []);
 
-  // Détection si ce média est déjà dans la liste de l'utilisateur
   useEffect(() => {
     if (!user || !media) return;
     const list = isSerie ? user.series : user.movies;
@@ -107,29 +104,27 @@ export default function FilmDetail() {
 
     const title = media.title || media.name;
 
-    const body = {
-      type: isSerie ? "series" : "movies",
-      tmdbId: media.id,
-      title,
-      posterPath: media.poster_path,
-      note: rating,
-    };
-
-    const res = await fetch("/api/user/add-media", {
+    const res = await fetch("/api/user/favorites", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         token,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        type: isSerie ? "series" : "movies",
+        tmdbId: media.id,
+        mediaData: {
+          tmdbId: media.id,
+          title,
+          posterPath: media.poster_path,
+          note: rating,
+          genres: media.genres,
+        },
+      }),
     });
 
-    const data = await res.json();
     if (res.ok) {
       setIsInList(true);
-      console.log("Ajouté à votre liste !");
-    } else {
-      console.error("Erreur lors de l'ajout :", data.error);
     }
   };
 
@@ -137,31 +132,20 @@ export default function FilmDetail() {
     const token = localStorage.getItem("token");
     if (!token || !user || !media?.id) return;
 
-    const typeToSend = isSerie ? "series" : "movies";
+    const res = await fetch("/api/user/favorites", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        token,
+      },
+      body: JSON.stringify({
+        type: isSerie ? "series" : "movies",
+        tmdbId: media.id,
+      }),
+    });
 
-    try {
-      const res = await fetch("/api/user/remove-media", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          token,
-        },
-        body: JSON.stringify({
-          type: typeToSend,
-          tmdbId: media.id,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setIsInList(false);
-        console.log("Retiré de votre liste !");
-      } else {
-        console.error("Erreur lors de la suppression :", data.error);
-      }
-    } catch (err) {
-      console.error("Erreur réseau :", err);
+    if (res.ok) {
+      setIsInList(false);
     }
   };
 

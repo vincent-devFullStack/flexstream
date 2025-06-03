@@ -13,7 +13,7 @@ export async function GET(req) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).lean(); // lean() pour retourner un objet simple
+    const user = await User.findById(decoded.userId).lean();
 
     if (!user) {
       return NextResponse.json(
@@ -30,8 +30,7 @@ export async function GET(req) {
         email: user.email,
       },
     });
-  } catch (err) {
-    console.error("Erreur API /user/profile :", err);
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

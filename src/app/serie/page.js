@@ -23,33 +23,30 @@ export default function SeriesPage() {
 
         const userSeries = data?.user?.series || [];
 
-        // 🔁 Regrouper par genre
         const grouped = {};
 
         userSeries.forEach((serie) => {
-          (serie.genres || []).forEach((genre) => {
-            if (!grouped[genre]) grouped[genre] = [];
-
-            grouped[genre].push({
-              id: serie.tmdbId,
-              title: serie.title || "Sans titre",
-              image: serie.posterPath
-                ? `https://image.tmdb.org/t/p/w500${serie.posterPath}`
-                : "/placeholder.jpg",
-              rating: serie.note,
-              description: "",
-            });
+          const genre = serie.genre || "Sans genre";
+          if (!grouped[genre]) grouped[genre] = [];
+          grouped[genre].push({
+            id: serie.tmdbId,
+            title: serie.title || "Sans titre",
+            image: serie.posterPath
+              ? `https://image.tmdb.org/t/p/w500${serie.posterPath}`
+              : "/placeholder.jpg",
+            rating: serie.note,
+            description: "",
           });
         });
 
-        const result = Object.entries(grouped).map(([genre, series]) => ({
+        const result = Object.entries(grouped).map(([genre, movies]) => ({
           genre,
-          movies: series, // pour rester compatible avec le composant Movie
+          movies,
         }));
 
         setCategories(result);
-      } catch (err) {
-        console.error("[Series] Erreur de chargement :", err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     };
 

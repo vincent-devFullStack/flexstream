@@ -23,22 +23,19 @@ export default function FilmPage() {
 
         const userMovies = data?.user?.movies || [];
 
-        // 🔁 Regrouper par genre
         const grouped = {};
 
         userMovies.forEach((movie) => {
-          (movie.genres || []).forEach((genre) => {
-            if (!grouped[genre]) grouped[genre] = [];
-
-            grouped[genre].push({
-              id: movie.tmdbId,
-              title: movie.title || "Sans titre",
-              image: movie.posterPath
-                ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
-                : "/placeholder.jpg",
-              rating: movie.note,
-              description: "",
-            });
+          const genre = movie.genre || "Sans genre";
+          if (!grouped[genre]) grouped[genre] = [];
+          grouped[genre].push({
+            id: movie.tmdbId,
+            title: movie.title || "Sans titre",
+            image: movie.posterPath
+              ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+              : "/placeholder.jpg",
+            rating: movie.note,
+            description: "",
           });
         });
 
@@ -48,8 +45,8 @@ export default function FilmPage() {
         }));
 
         setCategories(result);
-      } catch (err) {
-        console.error("Erreur lors du chargement :", err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     };
 

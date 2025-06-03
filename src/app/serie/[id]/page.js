@@ -56,11 +56,8 @@ export default function SerieDetail() {
 
         const savedRating = localStorage.getItem(`rating-${id}`);
         if (savedRating) setRating(parseInt(savedRating));
-      } catch (err) {
-        console.error(
-          `[Serie] Erreur lors du chargement de la série ${id} :`,
-          err
-        );
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     }
 
@@ -79,8 +76,8 @@ export default function SerieDetail() {
         });
         const data = await res.json();
         if (res.ok) setUser(data.user);
-      } catch (err) {
-        console.error("Erreur chargement profil utilisateur :", err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     };
 
@@ -102,7 +99,7 @@ export default function SerieDetail() {
     const token = localStorage.getItem("token");
     if (!token || !serie || !user) return;
 
-    const res = await fetch("/api/user/add-media", {
+    const res = await fetch("/api/user/favorites", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -111,9 +108,13 @@ export default function SerieDetail() {
       body: JSON.stringify({
         type: "series",
         tmdbId: serie.id,
-        title: serie.name,
-        posterPath: serie.poster_path,
-        note: rating,
+        mediaData: {
+          tmdbId: serie.id,
+          title: serie.name,
+          posterPath: serie.poster_path,
+          note: rating,
+          genres: serie.genres, // 👈 AJOUTE ICI
+        },
       }),
     });
 
@@ -126,8 +127,8 @@ export default function SerieDetail() {
     const token = localStorage.getItem("token");
     if (!token || !serie || !user || !serie.id) return;
 
-    const res = await fetch("/api/user/remove-media", {
-      method: "POST",
+    const res = await fetch("/api/user/favorites", {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         token,

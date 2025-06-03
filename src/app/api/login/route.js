@@ -33,8 +33,7 @@ export async function POST(req) {
     );
 
     return Response.json({ token, email: user.email }, { status: 200 });
-  } catch (err) {
-    console.error("Login error:", err);
+  } catch {
     return Response.json({ error: "Login failed" }, { status: 500 });
   }
 }

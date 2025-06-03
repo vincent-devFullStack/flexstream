@@ -29,8 +29,8 @@ export default function ProfilPage() {
             setAvatar(data.user.avatar);
           }
         }
-      } catch (err) {
-        console.error("Erreur chargement profil :", err);
+      } catch {
+        // Erreur silencieuse pour la prod
       }
     };
 
@@ -52,13 +52,13 @@ export default function ProfilPage() {
   const handleAvatarUpload = async () => {
     if (!newAvatar) return;
 
-    const res = await fetch("/api/user/upload-avatar", {
+    const res = await fetch("/api/user/settings", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         token: localStorage.getItem("token"),
       },
-      body: JSON.stringify({ avatar: newAvatar }),
+      body: JSON.stringify({ action: "upload-avatar", avatar: newAvatar }),
     });
 
     if (res.ok) {
@@ -84,13 +84,10 @@ export default function ProfilPage() {
     );
     if (!confirm) return;
 
-    const res = await fetch("/api/user/change-password", {
+    const res = await fetch("/api/user/settings", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        token,
-      },
-      body: JSON.stringify({ newPassword }),
+      headers: { "Content-Type": "application/json", token },
+      body: JSON.stringify({ action: "change-password", newPassword }),
     });
 
     if (res.ok) {
@@ -110,9 +107,10 @@ export default function ProfilPage() {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch("/api/user/delete", {
-      method: "DELETE",
-      headers: { token },
+    const res = await fetch("/api/user/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", token },
+      body: JSON.stringify({ action: "delete-account" }),
     });
 
     if (res.ok) {

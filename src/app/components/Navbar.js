@@ -46,8 +46,8 @@ export default function Navbar() {
         .then((data) => {
           if (data?.user?.avatar) setAvatar(data.user.avatar);
         });
-    } catch (err) {
-      console.error("Token invalide :", err);
+    } catch {
+      // Token invalide, rien à faire ici pour la prod
     }
   }, []);
 
@@ -88,7 +88,7 @@ export default function Navbar() {
         setSuggestions([...series, ...movies]);
       } catch (err) {
         if (err.name !== "AbortError") {
-          console.error("Erreur suggestions :", err);
+          // Erreur suggestions ignorée en prod
         }
       }
     };
@@ -164,7 +164,7 @@ export default function Navbar() {
                 {suggestions.map((item) => (
                   <li key={`${item.type}-${item.id}`}>
                     <Link
-                      href={`/${item.type === "tv" ? "serie" : "film"}/$${
+                      href={`/${item.type === "tv" ? "serie" : "film"}/${
                         item.id
                       }`}
                     >
