@@ -113,7 +113,7 @@ export default function SerieDetail() {
           title: serie.name,
           posterPath: serie.poster_path,
           note: rating,
-          genres: serie.genres, // 👈 AJOUTE ICI
+          genres: serie.genres,
         },
       }),
     });
