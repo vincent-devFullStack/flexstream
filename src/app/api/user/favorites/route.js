@@ -41,7 +41,7 @@ export async function POST(req) {
           title: mediaData.title,
           posterPath: mediaData.posterPath,
           note: mediaData.note,
-          genre: firstGenre, // le seul champ de genre
+          genre: firstGenre,
         });
       }
     } else if (type === "series") {
